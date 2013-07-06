@@ -48,13 +48,15 @@ uint8_t usart_rx_get_byte()
 	// read usart data register
 	return UDR0;
 }
-uint8_t usart_rx_read_byte()
+
+// read a byte, waiting indefinitely for data
+void usart_rx_read_byte(uint8_t* data)
 {
 	while (!usart_rx_has_byte());
 
-	return usart_rx_get_byte();
+	*data = usart_rx_get_byte();
 }
-
+// read a byte, giving up after 1 ms of waiting for data
 uint8_t usart_rx_try_read_byte(uint8_t* data)
 {
 	timer_restart();
@@ -68,10 +70,29 @@ uint8_t usart_rx_try_read_byte(uint8_t* data)
 
 	return 0;
 }
-
+// read many bytes, waiting indefinitely for data
+void usart_rx_read_bytes(uint8_t* data, uint16_t data_length)
+{
+	for (uint16_t index = 0; index < data_length; index++) usart_rx_read_byte(&data[index]);
+}
+// read many bytes, giving up after 1 ms of waiting for data
 uint8_t usart_rx_try_read_bytes(uint8_t* data, uint16_t data_length)
 {
 	for (uint16_t index = 0; index < data_length; index++)
+		if (usart_rx_try_read_byte(&data[index]))
+			return 1;
+
+	return 0;
+}
+
+// read many bytes, waiting indefinitely for the first byte, then giving up after 1 ms of waiting for data
+uint8_t usart_rx_read_stream(uint8_t* data, uint16_t data_length)
+{
+	if (data_length == 0) return 0;
+
+	usart_rx_read_byte(&data[0]);
+
+	for (uint16_t index = 1; index < data_length; index++)
 		if (usart_rx_try_read_byte(&data[index]))
 			return 1;
 
