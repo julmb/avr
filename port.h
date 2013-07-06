@@ -25,7 +25,9 @@ port port_initialize(volatile uint8_t* control, volatile uint8_t* input, volatil
 	return port;
 }
 
-void port_dispose(port port) { }
+void port_dispose(port port)
+{
+}
 
 void port_set_input(port port)
 {
@@ -40,13 +42,10 @@ uint8_t port_read(port port)
 {
 	return *port.input & _BV(port.pin);
 }
-void port_set(port port)
+void port_write(port port, uint8_t value)
 {
-	*port.output |= _BV(port.pin);
-}
-void port_clear(port port)
-{
-	*port.output &= ~_BV(port.pin);
+	if (value) *port.output |= _BV(port.pin);
+	else *port.output &= ~_BV(port.pin);
 }
 
 #endif
