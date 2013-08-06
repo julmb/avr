@@ -38,14 +38,35 @@ void port_set_output(port port)
 	*port.control |= _BV(port.pin);
 }
 
+void port_enable_pull_up_resistor(port port)
+{
+	*port.output |= _BV(port.pin);
+}
+void port_disable_pull_up_resistor(port port)
+{
+	*port.output &= ~_BV(port.pin);
+}
+
 uint8_t port_read(port port)
 {
 	return *port.input & _BV(port.pin);
 }
+void port_set(port port)
+{
+	*port.output |= _BV(port.pin);
+}
+void port_clear(port port)
+{
+	*port.output &= ~_BV(port.pin);
+}
+void port_toggle(port port)
+{
+	*port.input |= _BV(port.pin);
+}
 void port_write(port port, uint8_t value)
 {
-	if (value) *port.output |= _BV(port.pin);
-	else *port.output &= ~_BV(port.pin);
+	if (value) port_set(port);
+	else port_clear(port);
 }
 
 #endif
