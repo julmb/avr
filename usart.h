@@ -6,21 +6,8 @@
 #include "timer.h"
 #include "port.h"
 
-typedef struct
+void usart_initialize()
 {
-	port status_port;
-}
-usart;
-
-usart usart_initialize(port status_port)
-{
-	usart usart =
-	{
-		.status_port = status_port
-	};
-
-	port_clear(usart.status_port);
-
 	timer_initialize();
 
 	// set UBBR0 to 0 for 2 Mbaud at 16 MHz CPU clock frequency in double speed mode
@@ -38,17 +25,13 @@ usart usart_initialize(port status_port)
 	UCSR0A = (1 << U2X0) | (0 << MPCM0);
 	UCSR0B = (0 << RXCIE0) | (0 << TXCIE0) | (0 << UDRIE0) | (1 << RXEN0) | (1 << TXEN0) | (0 << UCSZ02);
 	UCSR0C = (0 << UMSEL01) | (0 << UMSEL00) | (0 << UPM01) | (0 << UPM00) | (0 << USBS0) | (1 << UCSZ01) | (1 << UCSZ00) | (0 << UCPOL0);
-
-	return usart;
 }
-void usart_dispose(usart usart)
+void usart_dispose()
 {
-	port_clear(usart.status_port);
-
 	timer_dispose();
 }
 
-void usart_rx_flush_buffer(usart usart)
+void usart_rx_flush_buffer()
 {
 	uint8_t data;
 
@@ -56,102 +39,97 @@ void usart_rx_flush_buffer(usart usart)
 	while (UCSR0A & _BV(RXC0)) data = UDR0;
 }
 
-uint8_t usart_rx_has_byte(usart usart)
+uint8_t usart_rx_has_byte()
 {
 	// check for rx complete flag
 	return UCSR0A & _BV(RXC0);
 }
-uint8_t usart_rx_get_byte(usart usart)
+uint8_t usart_rx_get_byte()
 {
 	// read usart data register
 	return UDR0;
 }
 
-// read a byte, waiting indefinitely for data, toggling the status port while waiting for data
-void usart_rx_read_byte(usart usart, uint8_t* data)
+void usart_rx_wait_for_byte(port status_port)
 {
 	timer_restart();
 	timer_reset();
 
 	uint16_t retryCount = 0;
 
-	while (!usart_rx_has_byte(usart))
+	while (!usart_rx_has_byte())
 		if (timer_has_elapsed())
 		{
+			timer_reset();
+
 			retryCount++;
 
 			if (retryCount == 1000)
 			{
 				retryCount = 0;
 
-				port_toggle(usart.status_port);
+				port_toggle(status_port);
 			}
 		}
+}
 
-	*data = usart_rx_get_byte(usart);
+// read a byte, waiting indefinitely for data, toggling the status port while waiting for data
+void usart_rx_read_byte(uint8_t* data)
+{
+	while (!usart_rx_has_byte()) ;
 
-	port_set(usart.status_port);
+	*data = usart_rx_get_byte();
 }
 // read a byte, giving up after 1 ms of waiting for data
-uint8_t usart_rx_try_read_byte(usart usart, uint8_t* data)
+uint8_t usart_rx_try_read_byte(uint8_t* data)
 {
 	timer_restart();
 	timer_reset();
 
-	while (!usart_rx_has_byte(usart))
+	while (!usart_rx_has_byte())
 		if (timer_has_elapsed())
 			return 1;
 
-	*data = usart_rx_get_byte(usart);
+	*data = usart_rx_get_byte();
 
 	return 0;
 }
 
 // read many bytes, waiting indefinitely for data
-void usart_rx_read_bytes(usart usart, uint8_t* data, uint16_t data_length)
+void usart_rx_read_bytes(uint8_t* data, uint16_t data_length)
 {
-	port_set(usart.status_port);
-
-	for (uint16_t index = 0; index < data_length; index++) usart_rx_read_byte(usart, &data[index]);
-
-	port_clear(usart.status_port);
+	for (uint16_t index = 0; index < data_length; index++) usart_rx_read_byte(&data[index]);
 }
 // read many bytes, giving up after 1 ms of waiting for data
-uint8_t usart_rx_try_read_bytes(usart usart, uint8_t* data, uint16_t data_length)
+uint8_t usart_rx_try_read_bytes(uint8_t* data, uint16_t data_length)
 {
-	port_set(usart.status_port);
-
 	for (uint16_t index = 0; index < data_length; index++)
-		if (usart_rx_try_read_byte(usart, &data[index]))
-		{
-			port_clear(usart.status_port);
-
+		if (usart_rx_try_read_byte(&data[index]))
 			return 1;
-		}
-
-	port_clear(usart.status_port);
 
 	return 0;
 }
 
 // read many bytes, waiting indefinitely for the first byte, then giving up after 1 ms of waiting for data
-uint8_t usart_rx_read_stream(usart usart, uint8_t* data, uint16_t data_length)
+uint8_t usart_rx_read_stream(uint8_t* data, uint16_t data_length, port status_port)
 {
 	if (data_length == 0) return 0;
 
-	port_set(usart.status_port);
+	usart_rx_wait_for_byte(status_port);
 
-	usart_rx_read_byte(usart, &data[0]);
+	data[0] = usart_rx_get_byte();
+
+	port_set(status_port);
 
 	for (uint16_t index = 1; index < data_length; index++)
-		if (usart_rx_try_read_byte(usart, &data[index]))
+		if (usart_rx_try_read_byte(&data[index]))
 		{
-			port_clear(usart.status_port);
+			port_clear(status_port);
 
 			return 1;
 		}
 
-	port_clear(usart.status_port);
+	port_clear(status_port);
 
 	return 0;
 }

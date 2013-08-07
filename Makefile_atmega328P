@@ -1,7 +1,7 @@
 all: build flash
 
 build:
-	avr-gcc -std=gnu99 -Os -mmcu=atmega328p -save-temps main_atmega328P.c -o main_atmega328P.elf
+	avr-gcc -std=gnu99 -O3 -mmcu=atmega328p -save-temps main_atmega328P.c -o main_atmega328P.elf
 	avr-objcopy -O ihex main_atmega328P.elf main_atmega328P.hex
 
 flash:

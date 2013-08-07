@@ -1,7 +1,7 @@
 all: build flash
 
 build:
-	avr-gcc -std=gnu99 -Os -mmcu=attiny85 -save-temps main_attiny85.c -o main_attiny85.elf
+	avr-gcc -std=gnu99 -O3 -mmcu=attiny85 -save-temps main_attiny85.c -o main_attiny85.elf
 	avr-objcopy -O ihex main_attiny85.elf main_attiny85.hex
 
 flash:
