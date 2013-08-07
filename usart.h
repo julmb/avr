@@ -4,9 +4,25 @@
 #include <avr/io.h>
 
 #include "timer.h"
+#include "port.h"
 
-void usart_initialize()
+typedef struct
 {
+	port status_port;
+}
+usart;
+
+usart usart_initialize(port status_port)
+{
+	usart usart =
+	{
+		.status_port = status_port
+	};
+
+	port_clear(usart.status_port);
+
+	timer_initialize();
+
 	// set UBBR0 to 0 for 2 Mbaud at 16 MHz CPU clock frequency in double speed mode
 	UBRR0 = 0x0000;
 
@@ -23,14 +39,16 @@ void usart_initialize()
 	UCSR0B = (0 << RXCIE0) | (0 << TXCIE0) | (0 << UDRIE0) | (1 << RXEN0) | (1 << TXEN0) | (0 << UCSZ02);
 	UCSR0C = (0 << UMSEL01) | (0 << UMSEL00) | (0 << UPM01) | (0 << UPM00) | (0 << USBS0) | (1 << UCSZ01) | (1 << UCSZ00) | (0 << UCPOL0);
 
-	timer_initialize();
+	return usart;
 }
-void usart_dispose()
+void usart_dispose(usart usart)
 {
+	port_clear(usart.status_port);
+
 	timer_dispose();
 }
 
-void usart_rx_flush_buffer()
+void usart_rx_flush_buffer(usart usart)
 {
 	uint8_t data;
 
@@ -38,63 +56,102 @@ void usart_rx_flush_buffer()
 	while (UCSR0A & _BV(RXC0)) data = UDR0;
 }
 
-uint8_t usart_rx_has_byte()
+uint8_t usart_rx_has_byte(usart usart)
 {
 	// check for rx complete flag
 	return UCSR0A & _BV(RXC0);
 }
-uint8_t usart_rx_get_byte()
+uint8_t usart_rx_get_byte(usart usart)
 {
 	// read usart data register
 	return UDR0;
 }
 
-// read a byte, waiting indefinitely for data
-void usart_rx_read_byte(uint8_t* data)
-{
-	while (!usart_rx_has_byte());
-
-	*data = usart_rx_get_byte();
-}
-// read a byte, giving up after 1 ms of waiting for data
-uint8_t usart_rx_try_read_byte(uint8_t* data)
+// read a byte, waiting indefinitely for data, toggling the status port while waiting for data
+void usart_rx_read_byte(usart usart, uint8_t* data)
 {
 	timer_restart();
 	timer_reset();
 
-	while (!usart_rx_has_byte())
+	uint16_t retryCount = 0;
+
+	while (!usart_rx_has_byte(usart))
+		if (timer_has_elapsed())
+		{
+			retryCount++;
+
+			if (retryCount == 1000)
+			{
+				retryCount = 0;
+
+				port_toggle(usart.status_port);
+			}
+		}
+
+	*data = usart_rx_get_byte(usart);
+
+	port_set(usart.status_port);
+}
+// read a byte, giving up after 1 ms of waiting for data
+uint8_t usart_rx_try_read_byte(usart usart, uint8_t* data)
+{
+	timer_restart();
+	timer_reset();
+
+	while (!usart_rx_has_byte(usart))
 		if (timer_has_elapsed())
 			return 1;
 
-	*data = usart_rx_get_byte();
+	*data = usart_rx_get_byte(usart);
 
 	return 0;
 }
+
 // read many bytes, waiting indefinitely for data
-void usart_rx_read_bytes(uint8_t* data, uint16_t data_length)
+void usart_rx_read_bytes(usart usart, uint8_t* data, uint16_t data_length)
 {
-	for (uint16_t index = 0; index < data_length; index++) usart_rx_read_byte(&data[index]);
+	port_set(usart.status_port);
+
+	for (uint16_t index = 0; index < data_length; index++) usart_rx_read_byte(usart, &data[index]);
+
+	port_clear(usart.status_port);
 }
 // read many bytes, giving up after 1 ms of waiting for data
-uint8_t usart_rx_try_read_bytes(uint8_t* data, uint16_t data_length)
+uint8_t usart_rx_try_read_bytes(usart usart, uint8_t* data, uint16_t data_length)
 {
+	port_set(usart.status_port);
+
 	for (uint16_t index = 0; index < data_length; index++)
-		if (usart_rx_try_read_byte(&data[index]))
+		if (usart_rx_try_read_byte(usart, &data[index]))
+		{
+			port_clear(usart.status_port);
+
 			return 1;
+		}
+
+	port_clear(usart.status_port);
 
 	return 0;
 }
 
 // read many bytes, waiting indefinitely for the first byte, then giving up after 1 ms of waiting for data
-uint8_t usart_rx_read_stream(uint8_t* data, uint16_t data_length)
+uint8_t usart_rx_read_stream(usart usart, uint8_t* data, uint16_t data_length)
 {
 	if (data_length == 0) return 0;
 
-	usart_rx_read_byte(&data[0]);
+	port_set(usart.status_port);
+
+	usart_rx_read_byte(usart, &data[0]);
 
 	for (uint16_t index = 1; index < data_length; index++)
-		if (usart_rx_try_read_byte(&data[index]))
+		if (usart_rx_try_read_byte(usart, &data[index]))
+		{
+			port_clear(usart.status_port);
+
 			return 1;
+		}
+
+	port_clear(usart.status_port);
 
 	return 0;
 }
