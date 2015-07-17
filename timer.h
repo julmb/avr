@@ -7,7 +7,7 @@ void timer_initialize()
 {
 	// disable compare output mode (COM0A = 0b00, COM0B = 0b00)
 	// disable waveform generation mode (WGM0 = 0b000)
-	// set timer increase every 64 clock cycles, causes overflow every 1 ms at 16 MHz (CS0 = 0b011)
+	// set timer to increment every 64 clock cycles, causes overflow every 1 ms at 16 MHz (CS0 = 0b011)
 	TCCR0A = (0 << COM0A1) | (0 << COM0A0) | (0 << COM0B1) | (0 << COM0B0) | (0 << WGM01) | (0 << WGM00);
 	TCCR0B = (0 << WGM02) | (0 << CS02) | (1 << CS01) | (1 << CS00);
 	// disable all interrupts (OCIE0B = 0b0, OCIE0A = 0b0, TOIE0 = 0b0)
