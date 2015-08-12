@@ -1,5 +1,5 @@
-#ifndef spi_usi_h
-#define spi_usi_h
+#ifndef usi_spi_h
+#define usi_spi_h
 
 #include <avr/io.h>
 
