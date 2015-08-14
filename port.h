@@ -3,12 +3,16 @@
 
 #include <avr/io.h>
 
+#define PORT_B &DDRB, &PINB, &PORTB
+#define PORT_C &DDRC, &PINC, &PORTC
+#define PORT_D &DDRD, &PIND, &PORTD
+
 typedef struct
 {
 	volatile uint8_t* control;
 	volatile uint8_t* input;
 	volatile uint8_t* output;
-	volatile uint8_t pin;
+	uint8_t pin;
 }
 port;
 
@@ -25,9 +29,7 @@ port port_initialize(volatile uint8_t* control, volatile uint8_t* input, volatil
 	return port;
 }
 
-void port_dispose(port port)
-{
-}
+void port_dispose(port port) { }
 
 void port_set_input(port port)
 {
