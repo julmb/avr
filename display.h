@@ -6,21 +6,21 @@
 #include <util/delay.h>
 
 #include "port.h"
-#include "data_port.h"
+#include "port_data.h"
 
 typedef struct
 {
 	port register_select;
 	port read_write;
 	port enable;
-	data_port data;
+	port_data data;
 	uint8_t character_count;
 }
 display;
 
 uint8_t display_read_data(display display, uint8_t data)
 {
-	data_port_set_input(display.data);
+	port_data_set_input(display.data);
 
 	port_write(display.register_select, data);
 	port_set(display.read_write);
@@ -28,7 +28,7 @@ uint8_t display_read_data(display display, uint8_t data)
 	port_set(display.enable);
 	_delay_ms(1);
 
-	uint8_t value = data_port_read(display.data);
+	uint8_t value = port_data_read(display.data);
 
 	port_clear(display.enable);
 	_delay_ms(1);
@@ -37,7 +37,7 @@ uint8_t display_read_data(display display, uint8_t data)
 }
 void display_write_data(display display, uint8_t data, uint8_t value)
 {
-	data_port_set_output(display.data);
+	port_data_set_output(display.data);
 
 	port_write(display.register_select, data);
 	port_clear(display.read_write);
@@ -45,7 +45,7 @@ void display_write_data(display display, uint8_t data, uint8_t value)
 	port_set(display.enable);
 	_delay_ms(1);
 
-	data_port_write(display.data, value);
+	port_data_write(display.data, value);
 
 	port_clear(display.enable);
 	_delay_ms(1);
@@ -74,7 +74,7 @@ void display_printf(display display, const char* format, ...)
 	display_write_characters(display, buffer);
 }
 
-display display_initialize(port register_select, port read_write, port enable, data_port data, uint8_t character_count)
+display display_initialize(port register_select, port read_write, port enable, port_data data, uint8_t character_count)
 {
 	display display =
 	{
