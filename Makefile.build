@@ -1,0 +1,35 @@
+ifeq ($(device), attiny85)
+    mmcu = attiny85
+    partno = t85
+endif
+ifeq ($(device), atmega328p)
+    mmcu = atmega328p
+    partno = m328p
+endif
+
+CC = avr-gcc
+OC = avr-objcopy
+FL = avrdude
+CPPFLAGS += -I$(avr)/include -DF_CPU=$(frequency)
+CFLAGS += -std=gnu99 -O3 -flto -save-temps=obj -mmcu=$(mmcu)
+OCFLAGS += -O ihex
+FLFLAGS += -c $(programmer) -p $(partno)
+
+all: flash
+build: obj/main.elf
+flash: obj/main.flash
+
+.PHONY: build flash
+
+obj:
+	mkdir obj
+obj/%.elf: obj %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $*.c -o obj/$*.elf
+obj/%.hex: obj/%.elf
+	$(OC) $(OCFLAGS) obj/$*.elf obj/$*.hex
+obj/%.flash: obj/%.hex
+	$(FL) $(FLFLAGS) -U flash:w:obj/$*.hex
+clean:
+	rm -r obj
+
+.PHONY: clean
