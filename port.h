@@ -28,7 +28,6 @@ port port_initialize(volatile uint8_t* control, volatile uint8_t* input, volatil
 
 	return port;
 }
-
 void port_dispose(port port) { }
 
 void port_set_input(port port)
