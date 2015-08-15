@@ -21,10 +21,13 @@ flash: obj/main.flash
 
 .PHONY: build flash
 
+-include obj/main.d
+
 obj:
 	mkdir obj
 obj/%.elf: obj %.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $*.c -o obj/$*.elf
+	$(CC)     $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $*.c -o  obj/$*.elf
+	$(CC) -MM $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $*.c -MT obj/$*.elf > obj/$*.d
 obj/%.hex: obj/%.elf
 	$(OC) $(OCFLAGS) obj/$*.elf obj/$*.hex
 obj/%.flash: obj/%.hex
