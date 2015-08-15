@@ -17,6 +17,7 @@ FLFLAGS += -c $(programmer) -p $(partno)
 
 all: flash
 build: obj/main.elf
+bin: obj/main.hex
 flash: obj/main.flash
 
 .PHONY: build flash
@@ -25,7 +26,7 @@ flash: obj/main.flash
 
 obj:
 	mkdir obj
-obj/%.elf: obj %.c
+obj/%.elf: %.c | obj
 	$(CC)     $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $*.c -o  obj/$*.elf
 	$(CC) -MM $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $*.c -MT obj/$*.elf > obj/$*.d
 obj/%.hex: obj/%.elf
