@@ -20,7 +20,7 @@ build: obj/main.elf
 bin: obj/main.hex
 flash: obj/main.flash
 
-.PHONY: build flash
+.PHONY: all build bin flash
 
 -include obj/main.d
 
