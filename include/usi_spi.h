@@ -1,7 +1,7 @@
 #ifndef usi_spi_h
 #define usi_spi_h
 
-#ifndef ___AVR_ATTINY85___
+#ifndef __AVR_ATtiny85__
 	#error "The USI SPI module is not available on the chosen MCU."
 #endif
 

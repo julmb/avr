@@ -56,6 +56,15 @@ void port_write(port port, uint8_t value)
 	else port_clear(port);
 }
 
+uint8_t port_low(port port)
+{
+	return *port.output & ~_BV(port.pin);
+}
+uint8_t port_high(port port)
+{
+	return *port.output | _BV(port.pin);
+}
+
 port port_initialize(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output, uint8_t pin)
 {
 	port port =
@@ -65,6 +74,25 @@ port port_initialize(volatile uint8_t* control, volatile uint8_t* input, volatil
 		.output = output,
 		.pin = pin
 	};
+
+	return port;
+}
+port port_initialize_input(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output, uint8_t pin, uint8_t pull_up_resistor)
+{
+	port port = port_initialize(control, input, output, pin);
+
+	port_set_input(port);
+
+	if (pull_up_resistor) port_enable_pull_up_resistor(port);
+	else port_disable_pull_up_resistor(port);
+
+	return port;
+}
+port port_initialize_output(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output, uint8_t pin)
+{
+	port port = port_initialize(control, input, output, pin);
+
+	port_set_output(port);
 
 	return port;
 }

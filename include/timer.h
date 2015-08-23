@@ -1,7 +1,7 @@
 #ifndef timer_h
 #define timer_h
 
-#ifndef ___AVR_ATMEGA328P___
+#ifndef __AVR_ATmega328P__
 	#error "The timer module is not available on the chosen MCU."
 #endif
 

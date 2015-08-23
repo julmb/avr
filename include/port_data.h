@@ -49,6 +49,25 @@ port_data port_data_initialize(volatile uint8_t* control, volatile uint8_t* inpu
 
 	return port_data;
 }
+port_data port_data_initialize_input(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output, uint8_t pull_up_resistor)
+{
+	port_data port_data = port_data_initialize(control, input, output);
+
+	port_data_set_input(port_data);
+
+	if (pull_up_resistor) port_data_enable_pull_up_resistor(port_data);
+	else port_data_disable_pull_up_resistor(port_data);
+
+	return port_data;
+}
+port_data port_data_initialize_output(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output)
+{
+	port_data port_data = port_data_initialize(control, input, output);
+
+	port_data_set_output(port_data);
+
+	return port_data;
+}
 void port_data_dispose(port_data port_data)
 {
     port_data_set_input(port_data);
