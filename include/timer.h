@@ -7,6 +7,27 @@
 
 #include <avr/io.h>
 
+uint8_t timer_has_elapsed()
+{
+	// check for the counter overflow flag
+	return TIFR0 & _BV(TOV0);
+}
+void timer_reset()
+{
+	// clear the counter overflow flag
+	TIFR0 |= _BV(TOV0);
+}
+void timer_restart()
+{
+	// reset the counter
+	TCNT0 = 0x00;
+}
+uint8_t timer_value()
+{
+	// get the counter value
+	return TCNT0;
+}
+
 void timer_initialize()
 {
 	// disable compare output mode (COM0A = 0b00, COM0B = 0b00)
@@ -30,27 +51,6 @@ void timer_dispose()
 	TIFR0 |= _BV(TOV0);
 	// reset the counter
 	TCNT0 = 0x00;
-}
-
-uint8_t timer_has_elapsed()
-{
-	// check for the counter overflow flag
-	return TIFR0 & _BV(TOV0);
-}
-void timer_reset()
-{
-	// clear the counter overflow flag
-	TIFR0 |= _BV(TOV0);
-}
-void timer_restart()
-{
-	// reset the counter
-	TCNT0 = 0x00;
-}
-uint8_t timer_value()
-{
-	// get the counter value
-	return TCNT0;
 }
 
 #endif

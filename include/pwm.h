@@ -25,6 +25,18 @@ uint8_t pwm_get_frequency_bits(uint8_t frequency)
 
 	return 0b000;
 }
+void pwm_set_value(uint8_t index, uint8_t value)
+{
+	switch (index)
+	{
+		case 0: OCR0A = value; break;
+		case 1: OCR0B = value; break;
+		case 2: OCR1AL = value; break;
+		case 3: OCR1BL = value; break;
+		case 4: OCR2A = value; break;
+		case 5: OCR2B = value; break;
+	}
+}
 
 void pwm_initialize(uint8_t frequency)
 {
@@ -108,19 +120,6 @@ void pwm_dispose()
 	// disable output on the OC2A and OC2B pins
 	DDRB &= ~ _BV(3);
 	DDRD &= ~ _BV(3);
-}
-
-void pwm_set_value(uint8_t index, uint8_t value)
-{
-	switch (index)
-	{
-		case 0: OCR0A = value; break;
-		case 1: OCR0B = value; break;
-		case 2: OCR1AL = value; break;
-		case 3: OCR1BL = value; break;
-		case 4: OCR2A = value; break;
-		case 5: OCR2B = value; break;
-	}
 }
 
 #endif

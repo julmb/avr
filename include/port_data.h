@@ -11,23 +11,6 @@ typedef struct
 }
 port_data;
 
-port_data port_data_initialize(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output)
-{
-	port_data port_data =
-	{
-		.control = control,
-		.input = input,
-		.output = output,
-	};
-
-	return port_data;
-}
-void port_data_dispose(port_data port_data)
-{
-    port_data_set_input(port_data);
-    port_data_disable_pull_up_resistor(port_data);
-}
-
 void port_data_set_input(port_data port_data)
 {
 	*port_data.control = 0x00;
@@ -53,6 +36,23 @@ uint8_t port_data_read(port_data port_data)
 void port_data_write(port_data port_data, uint8_t value)
 {
 	*port_data.output = value;
+}
+
+port_data port_data_initialize(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output)
+{
+	port_data port_data =
+	{
+		.control = control,
+		.input = input,
+		.output = output,
+	};
+
+	return port_data;
+}
+void port_data_dispose(port_data port_data)
+{
+    port_data_set_input(port_data);
+    port_data_disable_pull_up_resistor(port_data);
 }
 
 #endif

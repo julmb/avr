@@ -16,24 +16,6 @@ typedef struct
 }
 port;
 
-port port_initialize(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output, uint8_t pin)
-{
-	port port =
-	{
-		.control = control,
-		.input = input,
-		.output = output,
-		.pin = pin
-	};
-
-	return port;
-}
-void port_dispose(port port)
-{
-	port_set_input(port);
-	port_disable_pull_up_resistor(port);
-}
-
 void port_set_input(port port)
 {
 	*port.control &= ~_BV(port.pin);
@@ -72,6 +54,24 @@ void port_write(port port, uint8_t value)
 {
 	if (value) port_set(port);
 	else port_clear(port);
+}
+
+port port_initialize(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output, uint8_t pin)
+{
+	port port =
+	{
+		.control = control,
+		.input = input,
+		.output = output,
+		.pin = pin
+	};
+
+	return port;
+}
+void port_dispose(port port)
+{
+	port_set_input(port);
+	port_disable_pull_up_resistor(port);
 }
 
 #endif

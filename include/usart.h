@@ -10,39 +10,6 @@
 #include "timer.h"
 #include "port.h"
 
-void usart_initialize()
-{
-	timer_initialize();
-
-	// set UBBR0 to 0 for 2 Mbaud at 16 MHz CPU clock frequency in double speed mode
-	UBRR0 = 0x0000;
-
-	// enable double speed mode (U2X0 = 0b1)
-	// disable multi-processor communication mode (MPCM0 = 0b0)
-	// disable all interrupts (RXCIE0 = 0b0, TXCIE0 = 0b0, UDRIE0 = 0b0)
-	// enable receiver and transmitter (RXEN0 = 0b1, TXEN0 = 0b1)
-	// set mode to asynchronous USART (UMSEL0 = 0b00)
-	// set parity mode to disabled (UPM0 = 0b00)
-	// set stop bit mode to 1 stop bit (USBS0 = 0b0)
-	// set character size to 8 bit (UCSZ0 = 0b011)
-	// set clock polarity bit to zero, not used in asynchronous mode (UCPOL0 = 0b0)
-	UCSR0A = (1 << U2X0) | (0 << MPCM0);
-	UCSR0B = (0 << RXCIE0) | (0 << TXCIE0) | (0 << UDRIE0) | (1 << RXEN0) | (1 << TXEN0) | (0 << UCSZ02);
-	UCSR0C = (0 << UMSEL01) | (0 << UMSEL00) | (0 << UPM01) | (0 << UPM00) | (0 << USBS0) | (1 << UCSZ01) | (1 << UCSZ00) | (0 << UCPOL0);
-}
-void usart_dispose()
-{
-	timer_dispose();
-
-	// reset USART configuration and status
-	UCSR0A = 0x00;
-	UCSR0B = 0x00;
-	UCSR0C = 0x00;
-
-	// reset USART data
-	UDR0 = 0x00;
-}
-
 void usart_rx_flush_buffer()
 {
 	uint8_t data;
@@ -144,6 +111,39 @@ uint8_t usart_rx_read_stream(uint8_t* data, uint16_t data_length, port status_po
 	port_clear(status_port);
 
 	return 0;
+}
+
+void usart_initialize()
+{
+	timer_initialize();
+
+	// set UBBR0 to 0 for 2 Mbaud at 16 MHz CPU clock frequency in double speed mode
+	UBRR0 = 0x0000;
+
+	// enable double speed mode (U2X0 = 0b1)
+	// disable multi-processor communication mode (MPCM0 = 0b0)
+	// disable all interrupts (RXCIE0 = 0b0, TXCIE0 = 0b0, UDRIE0 = 0b0)
+	// enable receiver and transmitter (RXEN0 = 0b1, TXEN0 = 0b1)
+	// set mode to asynchronous USART (UMSEL0 = 0b00)
+	// set parity mode to disabled (UPM0 = 0b00)
+	// set stop bit mode to 1 stop bit (USBS0 = 0b0)
+	// set character size to 8 bit (UCSZ0 = 0b011)
+	// set clock polarity bit to zero, not used in asynchronous mode (UCPOL0 = 0b0)
+	UCSR0A = (1 << U2X0) | (0 << MPCM0);
+	UCSR0B = (0 << RXCIE0) | (0 << TXCIE0) | (0 << UDRIE0) | (1 << RXEN0) | (1 << TXEN0) | (0 << UCSZ02);
+	UCSR0C = (0 << UMSEL01) | (0 << UMSEL00) | (0 << UPM01) | (0 << UPM00) | (0 << USBS0) | (1 << UCSZ01) | (1 << UCSZ00) | (0 << UCPOL0);
+}
+void usart_dispose()
+{
+	timer_dispose();
+
+	// reset USART configuration and status
+	UCSR0A = 0x00;
+	UCSR0B = 0x00;
+	UCSR0C = 0x00;
+
+	// reset USART data
+	UDR0 = 0x00;
 }
 
 #endif
