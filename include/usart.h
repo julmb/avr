@@ -48,7 +48,7 @@ void usart_initialize(uint16_t baud_rate, uint8_t double_speed)
 void usart_dispose()
 {
 	// reset baud rate
-	UBBR0 = 0x0000;
+	UBRR0 = 0x0000;
 
 	// reset USART configuration and status
 	UCSR0A = 0x00;
