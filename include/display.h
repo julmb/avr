@@ -18,6 +18,40 @@ typedef struct
 }
 display;
 
+display display_initialize(port register_select, port read_write, port enable, port_data data, uint8_t character_count)
+{
+	display display =
+	{
+		.register_select = register_select,
+		.read_write = read_write,
+		.enable = enable,
+		.data = data,
+		.character_count = character_count
+	};
+
+	port_set_output(register_select);
+	port_set_output(read_write);
+	port_set_output(enable);
+
+	// clear display
+	display_write_data(display, 0, 0b00000001);
+
+	// hide cursor
+	display_write_data(display, 0, 0b00001100);
+
+	// set display size
+	display_write_data(display, 0, 0b00111000);
+
+	return display;
+}
+void display_dispose(display display)
+{
+	port_dispose(display.register_select);
+	port_dispose(display.read_write);
+	port_dispose(display.enable);
+	port_data_dispose(display.data);
+}
+
 uint8_t display_read_data(display display, uint8_t data)
 {
 	port_data_set_input(display.data);
@@ -73,33 +107,5 @@ void display_printf(display display, const char* format, ...)
 
 	display_write_characters(display, buffer);
 }
-
-display display_initialize(port register_select, port read_write, port enable, port_data data, uint8_t character_count)
-{
-	display display =
-	{
-		.register_select = register_select,
-		.read_write = read_write,
-		.enable = enable,
-		.data = data,
-		.character_count = character_count
-	};
-
-	port_set_output(register_select);
-	port_set_output(read_write);
-	port_set_output(enable);
-
-	// clear display
-	display_write_data(display, 0, 0b00000001);
-
-	// hide cursor
-	display_write_data(display, 0, 0b00001100);
-
-	// set display size
-	display_write_data(display, 0, 0b00111000);
-
-	return display;
-}
-void display_dispose(display display) { }
 
 #endif

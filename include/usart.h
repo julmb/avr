@@ -1,6 +1,10 @@
 #ifndef usart_h
 #define usart_h
 
+#ifndef ___AVR_ATMEGA328P___
+	#error "The USART module is not available on the chosen MCU."
+#endif
+
 #include <avr/io.h>
 
 #include "timer.h"
@@ -29,6 +33,14 @@ void usart_initialize()
 void usart_dispose()
 {
 	timer_dispose();
+
+	// reset USART configuration and status
+	UCSR0A = 0x00;
+	UCSR0B = 0x00;
+	UCSR0C = 0x00;
+
+	// reset USART data
+	UDR0 = 0x00;
 }
 
 void usart_rx_flush_buffer()

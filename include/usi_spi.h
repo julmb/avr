@@ -1,6 +1,10 @@
 #ifndef usi_spi_h
 #define usi_spi_h
 
+#ifndef ___AVR_ATTINY85___
+	#error "The USI SPI module is not available on the chosen MCU."
+#endif
+
 #include <avr/io.h>
 
 void spi_initialize()
@@ -12,8 +16,21 @@ void spi_initialize()
 	
 	// reset counter
 	USISR &= ~_BV(USICNT3) & ~_BV(USICNT2) & ~_BV(USICNT1) & ~_BV(USICNT0);
+
+	// reset USI data
+	USIDR = 0x00;
 }
-void spi_dispose() { }
+void spi_dispose()
+{
+	// reset USI configuration
+	USICR = 0x00;
+
+	// reset USI status
+	USISR = 0x00;
+
+	// reset USI data
+	USIDR = 0x00;
+}
 
 uint8_t spi_read_byte()
 {

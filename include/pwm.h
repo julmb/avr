@@ -1,6 +1,10 @@
 #ifndef pwm_h
 #define pwm_h
 
+#ifndef ___AVR_ATMEGA328P___
+	#error "The PWM module is not available on the chosen MCU."
+#endif
+
 #include <avr/io.h>
 
 uint8_t pwm_get_frequency_bits(uint8_t frequency)

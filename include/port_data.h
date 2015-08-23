@@ -22,6 +22,11 @@ port_data port_data_initialize(volatile uint8_t* control, volatile uint8_t* inpu
 
 	return port_data;
 }
+void port_data_dispose(port_data port_data)
+{
+    port_data_set_input(port_data);
+    port_data_disable_pull_up_resistor(port_data);
+}
 
 void port_data_set_input(port_data port_data)
 {
