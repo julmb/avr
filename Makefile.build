@@ -17,10 +17,10 @@ FLFLAGS += -c $(programmer) -p $(partno)
 
 all: flash
 build: obj/main.elf
-bin: obj/main.hex
+binary: obj/main.hex
 flash: obj/main.flash
 
-.PHONY: all build bin flash
+.PHONY: all build binary flash
 
 -include obj/main.d
 
