@@ -16,13 +16,13 @@ OCFLAGS += -O ihex
 FLFLAGS += -c $(programmer) -p $(partno)
 
 all: flash
-build: obj/main.elf
-binary: obj/main.hex
-flash: obj/main.flash
+build: obj/$(main).elf
+binary: obj/$(main).hex
+flash: obj/$(main).flash
 
 .PHONY: all build binary flash
 
--include obj/main.d
+-include obj/$(main).d
 
 obj:
 	mkdir obj
