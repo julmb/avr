@@ -15,7 +15,7 @@ CC = avr-gcc
 OC = avr-objcopy
 FL = avrdude
 CPPFLAGS += -I$(avr)/include -DF_CPU=$(frequency)
-CFLAGS += -std=gnu99 -O3 -flto -save-temps=obj -mmcu=$(mmcu)
+CFLAGS += -std=gnu99 -O3 -fwhole-program -save-temps=obj -mmcu=$(mmcu)
 OCFLAGS += -O ihex
 FLFLAGS += -c $(programmer) -p $(partno)
 
