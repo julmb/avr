@@ -18,9 +18,9 @@ uint8_t spi_read_byte()
 	// read the USI data register
 	return USIDR;
 }
-void spi_read_bytes(uint8_t* data, uint16_t count)
+void spi_read_bytes(uint8_t* data, uint16_t length)
 {
-	for (uint16_t index = 0; index < count; index++) data[index] = spi_read_byte();
+	for (uint16_t index = 0; index < length; index++) data[index] = spi_read_byte();
 }
 
 void spi_initialize()

@@ -14,18 +14,19 @@ uint8_t usart_rx_get_byte()
 	return UDR0;
 }
 
-void usart_rx_read_byte(uint8_t* data)
+void usart_rx_read_bytes(void* data, size_t length)
 {
-	while (!usart_rx_has_byte()) ;
+	uint8_t* bytes = data;
 
-	*data = usart_rx_get_byte();
-}
-void usart_rx_read_bytes(uint8_t* data, uint16_t data_length)
-{
-	for (uint16_t index = 0; index < data_length; index++) usart_rx_read_byte(&data[index]);
+	for (uint16_t index = 0; index < length; index++)
+	{
+		while (!usart_rx_has_byte()) ;
+
+		*bytes++ = usart_rx_get_byte();
+	}
 }
 
-void usart_initialize(uint8_t receiver, uint8_t transmitter, uint16_t baud_rate, uint8_t double_speed)
+void usart_initialize(uint8_t receiver, uint8_t transmitter, uint16_t divider, uint8_t double_speed)
 {
 	// set double speed mode (U2X0 = double_speed)
 	// disable multi-processor communication mode (MPCM0 = 0b0)
@@ -39,7 +40,7 @@ void usart_initialize(uint8_t receiver, uint8_t transmitter, uint16_t baud_rate,
 	UCSR0A = ((double_speed ? 1 : 0) << U2X0) | (0 << MPCM0);
 	UCSR0B = (0 << RXCIE0) | (0 << TXCIE0) | (0 << UDRIE0) | ((receiver ? 1 : 0) << RXEN0) | ((transmitter ? 1 : 0) << TXEN0) | (0 << UCSZ02);
 	UCSR0C = (0 << UMSEL01) | (0 << UMSEL00) | (0 << UPM01) | (0 << UPM00) | (0 << USBS0) | (1 << UCSZ01) | (1 << UCSZ00) | (0 << UCPOL0);
-	UBRR0 = baud_rate;
+	UBRR0 = divider;
 }
 void usart_dispose()
 {
