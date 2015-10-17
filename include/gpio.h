@@ -21,6 +21,9 @@ void port_dispose(port port)
 }
 
 void port_set_direction(port port, uint8_t value) { *port.control = value; }
+void port_set_input(port port) { port_set_direction(port, 0x00); }
+void port_set_output(port port) { port_set_direction(port, 0xFF); }
+
 uint8_t port_read(port port) { return *port.input; }
 void port_write(port port, uint8_t value) { *port.output = value; }
 
