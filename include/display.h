@@ -5,49 +5,48 @@
 #include <stdio.h>
 #include <util/delay.h>
 
-#include "port.h"
-#include "port_data.h"
+#include "gpio.h"
 
 typedef struct
 {
-	port register_select;
-	port read_write;
-	port enable;
-	port_data data;
+	pin register_select;
+	pin read_write;
+	pin enable;
+	port data;
 	uint8_t character_count;
 }
 display;
 
 uint8_t display_read_data(display display, uint8_t data)
 {
-	port_data_set_input(display.data);
+	port_set_input(display.data);
 
-	port_write(display.register_select, data);
-	port_set(display.read_write);
+	pin_write(display.register_select, data);
+	pin_set(display.read_write);
 
-	port_set(display.enable);
+	pin_set(display.enable);
 	_delay_ms(1);
 
-	uint8_t value = port_data_read(display.data);
+	uint8_t value = port_read(display.data);
 
-	port_clear(display.enable);
+	pin_clear(display.enable);
 	_delay_ms(1);
 
 	return value;
 }
 void display_write_data(display display, uint8_t data, uint8_t value)
 {
-	port_data_set_output(display.data);
+	port_set_output(display.data);
 
-	port_write(display.register_select, data);
-	port_clear(display.read_write);
+	pin_write(display.register_select, data);
+	pin_clear(display.read_write);
 
-	port_set(display.enable);
+	pin_set(display.enable);
 	_delay_ms(1);
 
-	port_data_write(display.data, value);
+	port_write(display.data, value);
 
-	port_clear(display.enable);
+	pin_clear(display.enable);
 	_delay_ms(1);
 }
 void display_write_characters(display display, char* characters)
@@ -74,7 +73,7 @@ void display_printf(display display, const char* format, ...)
 	display_write_characters(display, buffer);
 }
 
-display display_initialize(port register_select, port read_write, port enable, port_data data, uint8_t character_count)
+display display_initialize(pin register_select, pin read_write, pin enable, port data, uint8_t character_count)
 {
 	display display =
 	{
@@ -85,9 +84,9 @@ display display_initialize(port register_select, port read_write, port enable, p
 		.character_count = character_count
 	};
 
-	port_set_output(register_select);
-	port_set_output(read_write);
-	port_set_output(enable);
+	pin_set_output(register_select);
+	pin_set_output(read_write);
+	pin_set_output(enable);
 
 	// clear display
 	display_write_data(display, 0, 0b00000001);
@@ -102,10 +101,10 @@ display display_initialize(port register_select, port read_write, port enable, p
 }
 void display_dispose(display display)
 {
-	port_dispose(display.register_select);
-	port_dispose(display.read_write);
-	port_dispose(display.enable);
-	port_data_dispose(display.data);
+	pin_dispose(display.register_select);
+	pin_dispose(display.read_write);
+	pin_dispose(display.enable);
+	port_dispose(display.data);
 }
 
 #endif
