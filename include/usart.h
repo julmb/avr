@@ -5,8 +5,6 @@
 	#error "The USART module is not available on the chosen MCU."
 #endif
 
-#include "port.h"
-
 uint8_t usart_rx_has_byte()
 {
 	return UCSR0A & _BV(RXC0);
