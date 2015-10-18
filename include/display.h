@@ -13,89 +13,79 @@ typedef struct
 	pin read_write;
 	pin enable;
 	port data;
-	uint8_t character_count;
 }
 display;
 
-uint8_t display_read_data(display display, uint8_t data)
-{
-	port_set_input(display.data);
-
-	pin_write(display.register_select, data);
-	pin_set(display.read_write);
-
-	pin_set(display.enable);
-	_delay_ms(1);
-
-	uint8_t value = port_read(display.data);
-
-	pin_clear(display.enable);
-	_delay_ms(1);
-
-	return value;
-}
-void display_write_data(display display, uint8_t data, uint8_t value)
+void display_write(display display, uint8_t register_select, uint8_t value)
 {
 	port_set_output(display.data);
 
-	pin_write(display.register_select, data);
+	pin_write(display.register_select, register_select);
 	pin_clear(display.read_write);
+	port_write(display.data, value);
+	_delay_us(100);
 
 	pin_set(display.enable);
-	_delay_ms(1);
-
-	port_write(display.data, value);
+	_delay_us(100);
 
 	pin_clear(display.enable);
-	_delay_ms(1);
+	_delay_us(100);
 }
+
 void display_write_characters(display display, char* characters)
 {
 	uint8_t finished = 0;
 
-	for (uint8_t index = 0; index < display.character_count; index++)
+	for (uint8_t index = 0; index < 16; index++)
 	{
 		if (characters[index] == 0) finished = 1;
 
-		display_write_data(display, 0, 0x80 | (index > 7 ? 0x40 + (index - 8) : index));
-		display_write_data(display, 1, finished ? 0x20 : characters[index]);
+		display_write(display, 0, 0x80 | (index > 7 ? 0x40 + (index - 8) : index));
+		display_write(display, 1, finished ? 0x20 : characters[index]);
 	}
 }
 void display_printf(display display, const char* format, ...)
 {
-	char buffer[display.character_count + 1];
+	char buffer[16 + 1];
 
 	va_list argptr;
 	va_start(argptr, format);
-	vsnprintf(buffer, display.character_count + 1, format, argptr);
+	vsnprintf(buffer, 16 + 1, format, argptr);
 	va_end(argptr);
 
 	display_write_characters(display, buffer);
 }
 
-display display_initialize(pin register_select, pin read_write, pin enable, port data, uint8_t character_count)
+display display_initialize(pin register_select, pin read_write, pin enable, port data)
 {
 	display display =
 	{
 		.register_select = register_select,
 		.read_write = read_write,
 		.enable = enable,
-		.data = data,
-		.character_count = character_count
+		.data = data
 	};
 
 	pin_set_output(register_select);
+	pin_clear(register_select);
+
 	pin_set_output(read_write);
+	pin_clear(read_write);
+
 	pin_set_output(enable);
+	pin_clear(enable);
 
-	// clear display
-	display_write_data(display, 0, 0b00000001);
+	// clear display, reset cursor
+	display_write(display, 0, 0b00000001);
+	_delay_us(1640);
 
-	// hide cursor
-	display_write_data(display, 0, 0b00001100);
+	// enable display, disable cursor, disable blinking
+	display_write(display, 0, 0b00001100);
+	_delay_us(40);
 
-	// set display size
-	display_write_data(display, 0, 0b00111000);
+	// enable 8-bit mode, enable double-line (8+8) display, set font to 5x7 dots
+	display_write(display, 0, 0b00111000);
+	_delay_us(40);
 
 	return display;
 }
