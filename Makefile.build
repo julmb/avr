@@ -13,18 +13,29 @@ endif
 
 CC = avr-gcc
 OC = avr-objcopy
-FL = avrdude
+PR = avrdude
 CPPFLAGS += -I$(avr)/include -DF_CPU=$(frequency)
-CFLAGS += -std=gnu99 -O3 -flto -save-temps=obj -mmcu=$(mmcu)
+CFLAGS += -mmcu=$(mmcu) -std=gnu99 -O3 -flto -save-temps=obj
 OCFLAGS += -O ihex
-FLFLAGS += -c $(programmer) -p $(partno)
+PRFLAGS += -c $(programmer) -p $(partno)
 
-all: flash
+flash = -U flash:w:obj/$(main).hex
+configure = $(if $(configuration), -U eeprom:w:$(configuration))
+
+default: binary
+
+.PHONY: default
+
 build: obj/$(main).elf
 binary: obj/$(main).hex
-flash: obj/$(main).flash
+flash: obj/$(main).hex
+	$(PR) $(PRFLAGS) $(flash)
+configure: obj/$(main).hex
+	$(PR) $(PRFLAGS) $(configure)
+program: obj/$(main).hex
+	$(PR) $(PRFLAGS) $(flash) $(configure)
 
-.PHONY: all build binary flash
+.PHONY: build binary flash configure program
 
 -include obj/$(main).d
 
@@ -35,8 +46,6 @@ obj/%.elf: %.c | obj
 	$(CC) -MM $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $*.c -MT obj/$*.elf > obj/$*.d
 obj/%.hex: obj/%.elf
 	$(OC) $(OCFLAGS) obj/$*.elf obj/$*.hex
-obj/%.flash: obj/%.hex
-	$(FL) $(FLFLAGS) -U flash:w:obj/$*.hex
 clean:
 	rm -r obj
 
