@@ -3,6 +3,8 @@
 
 #include <avr/io.h>
 
+#include "eeprom.h"
+
 #define portA &DDRA, &PINA, &PORTA
 #define portB &DDRB, &PINB, &PORTB
 #define portC &DDRC, &PINC, &PORTC
@@ -18,6 +20,27 @@ void port_dispose(port port)
 {
 	*port.control = 0x00;
 	*port.output = 0x00;
+}
+
+port port_decode(void** offset)
+{
+	switch (decode_byte(offset))
+	{
+		#ifdef __AVR_ATtiny85__
+		case 0x02: return port_initialize(portB);
+		#endif
+		#ifdef __AVR_ATmega328P__
+		case 0x02: return port_initialize(portB);
+		case 0x03: return port_initialize(portC);
+		case 0x04: return port_initialize(portD);
+		#endif
+		#ifdef __AVR_ATmega1284P__
+		case 0x01: return port_initialize(portA);
+		case 0x02: return port_initialize(portB);
+		case 0x03: return port_initialize(portC);
+		case 0x04: return port_initialize(portD);
+		#endif
+	}
 }
 
 void port_set_direction(port port, uint8_t value) { *port.control = value; }
@@ -67,6 +90,14 @@ pin pin_output(port port, uint8_t index, uint8_t state)
 	pin_write(pin, state);
 
 	return pin;
+}
+
+pin pin_decode(void** offset)
+{
+	port port = port_decode(offset);
+	uint8_t index = decode_byte(offset);
+
+	return pin_initialize(port, index);
 }
 
 #endif
