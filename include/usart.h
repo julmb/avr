@@ -1,6 +1,8 @@
 #ifndef usart_h
 #define usart_h
 
+#include "timer.h"
+
 #ifndef __AVR_ATmega328P__
 	#error "The USART module is not available on the chosen MCU."
 #endif
@@ -14,16 +16,43 @@ uint8_t usart_rx_get_byte()
 	return UDR0;
 }
 
-void usart_rx_read_bytes(void* data, size_t length)
+uint8_t usart_read_byte_single(uint8_t* byte)
 {
-	uint8_t* bytes = data;
+	if (!usart_rx_has_byte()) return 1;
 
-	for (uint16_t index = 0; index < length; index++)
+	*byte = usart_rx_get_byte();
+
+	return 0;
+}
+uint8_t usart_read_byte(uint8_t* byte, uint16_t tick_count)
+{
+	if (tick_count == 0)
 	{
-		while (!usart_rx_has_byte()) ;
+		while (usart_read_byte_single(byte));
 
-		*bytes++ = usart_rx_get_byte();
+		return 0;
 	}
+
+	timer_restart();
+
+	for (uint16_t index = 0; index < tick_count; index++)
+	{
+		timer_reset();
+
+		while (!timer_has_elapsed())
+			if (!usart_read_byte_single(byte))
+				return 0;
+	}
+
+	return 1;
+}
+uint8_t usart_read(void* data, size_t length, uint16_t tick_count)
+{
+	for (uint16_t index = 0; index < length; index++)
+		if (usart_read_byte(data++, tick_count))
+			return 1;
+
+	return 0;
 }
 
 void usart_initialize(uint8_t receiver, uint8_t transmitter, uint16_t divider, uint8_t double_speed)
