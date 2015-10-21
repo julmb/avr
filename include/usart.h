@@ -70,6 +70,8 @@ void usart_initialize(uint8_t receiver, uint8_t transmitter, uint16_t divider, u
 	UCSR0B = (0 << RXCIE0) | (0 << TXCIE0) | (0 << UDRIE0) | ((receiver ? 1 : 0) << RXEN0) | ((transmitter ? 1 : 0) << TXEN0) | (0 << UCSZ02);
 	UCSR0C = (0 << UMSEL01) | (0 << UMSEL00) | (0 << UPM01) | (0 << UPM00) | (0 << USBS0) | (1 << UCSZ01) | (1 << UCSZ00) | (0 << UCPOL0);
 	UBRR0 = divider;
+
+	timer_initialize();
 }
 void usart_dispose()
 {
@@ -83,6 +85,8 @@ void usart_dispose()
 
 	// reset USART data
 	UDR0 = 0x00;
+
+	timer_dispose();
 }
 
 #endif
