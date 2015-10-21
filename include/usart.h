@@ -7,31 +7,16 @@
 	#error "The USART module is not available on the chosen MCU."
 #endif
 
-uint8_t usart_rx_has_byte()
+uint8_t usart_rx_has_byte() { return UCSR0A & _BV(RXC0); }
+uint8_t usart_rx_get_byte() { return UDR0; }
+
+void usart_wait()
 {
-	return UCSR0A & _BV(RXC0);
+	while (!usart_rx_has_byte());
 }
-uint8_t usart_rx_get_byte()
+uint8_t usart_try(uint16_t tick_count)
 {
-	return UDR0;
-}
-
-uint8_t usart_read_byte_single(uint8_t* byte)
-{
-	if (!usart_rx_has_byte()) return 1;
-
-	*byte = usart_rx_get_byte();
-
-	return 0;
-}
-uint8_t usart_read_byte(uint8_t* byte, uint16_t tick_count)
-{
-	if (tick_count == 0)
-	{
-		while (usart_read_byte_single(byte));
-
-		return 0;
-	}
+	if (usart_rx_has_byte()) return 0;
 
 	timer_restart();
 
@@ -40,17 +25,22 @@ uint8_t usart_read_byte(uint8_t* byte, uint16_t tick_count)
 		timer_reset();
 
 		while (!timer_has_elapsed())
-			if (!usart_read_byte_single(byte))
+			if (usart_rx_has_byte())
 				return 0;
 	}
 
 	return 1;
 }
-uint8_t usart_read(void* data, size_t length, uint16_t tick_count)
+uint8_t usart_read(void* data, size_t length)
 {
-	for (uint16_t index = 0; index < length; index++)
-		if (usart_read_byte(data++, tick_count))
-			return 1;
+	uint8_t* bytes = data;
+
+	for (size_t index = 0; index < length; index++)
+	{
+		if (usart_try(1)) return 1;
+
+		*bytes++ = usart_rx_get_byte();
+	}
 
 	return 0;
 }
