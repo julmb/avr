@@ -23,5 +23,13 @@ uint16_t decode_word(void** offset)
 
 	return value;
 }
+uint32_t decode_dword(void** offset)
+{
+	uint32_t value = eeprom_read_dword(*offset);
+
+	*offset += 4;
+
+	return value;
+}
 
 #endif
