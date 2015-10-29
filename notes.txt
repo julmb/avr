@@ -1,0 +1,10 @@
+storage
+	sram: volatile data
+		contains things that change often and do not have to be preserved
+	eeprom: non-volatile data
+		contains things that change often but have to be preserved
+	flash: static data
+		can be exploited at compile time
+		does not require code for run time handling
+		contains things that change very rarely
+	if something depends on the hardware configuration, it should probably be stored in flash
