@@ -5,10 +5,10 @@
 
 #include "eeprom.h"
 
-#define portA &DDRA, &PINA, &PORTA
-#define portB &DDRB, &PINB, &PORTB
-#define portC &DDRC, &PINC, &PORTC
-#define portD &DDRD, &PIND, &PORTD
+#define port_a &DDRA, &PINA, &PORTA
+#define port_b &DDRB, &PINB, &PORTB
+#define port_c &DDRC, &PINC, &PORTC
+#define port_d &DDRD, &PIND, &PORTD
 
 typedef struct { volatile uint8_t* control; volatile uint8_t* input; volatile uint8_t* output; } port;
 
@@ -27,18 +27,18 @@ port port_decode(void** offset)
 	switch (decode_byte(offset))
 	{
 		#ifdef __AVR_ATtiny85__
-		case 0x02: return port_initialize(portB);
+		case 0x02: return port_initialize(port_b);
 		#endif
 		#ifdef __AVR_ATmega328P__
-		case 0x02: return port_initialize(portB);
-		case 0x03: return port_initialize(portC);
-		case 0x04: return port_initialize(portD);
+		case 0x02: return port_initialize(port_b);
+		case 0x03: return port_initialize(port_c);
+		case 0x04: return port_initialize(port_d);
 		#endif
 		#ifdef __AVR_ATmega1284P__
-		case 0x01: return port_initialize(portA);
-		case 0x02: return port_initialize(portB);
-		case 0x03: return port_initialize(portC);
-		case 0x04: return port_initialize(portD);
+		case 0x01: return port_initialize(port_a);
+		case 0x02: return port_initialize(port_b);
+		case 0x03: return port_initialize(port_c);
+		case 0x04: return port_initialize(port_d);
 		#endif
 	}
 }
