@@ -5,6 +5,9 @@
 	#error "The PWM module is not available on the chosen MCU."
 #endif
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <avr/io.h>
 
 uint8_t pwm_get_frequency_bits(uint8_t frequency)

@@ -1,8 +1,11 @@
 #ifndef display_h
 #define display_h
 
+#include <stddef.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
+
 #include <util/delay.h>
 
 #include "gpio.h"

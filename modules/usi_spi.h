@@ -5,6 +5,9 @@
 	#error "The USI SPI module is not available on the chosen MCU."
 #endif
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <avr/io.h>
 
 uint8_t spi_read_byte()

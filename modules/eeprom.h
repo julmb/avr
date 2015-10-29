@@ -5,6 +5,9 @@
 	#error "The eeprom module is not available on the chosen MCU."
 #endif
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <avr/eeprom.h>
 
 uint8_t decode_byte(void** offset)

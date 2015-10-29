@@ -1,6 +1,11 @@
 #ifndef usart_h
 #define usart_h
 
+#include <stddef.h>
+#include <stdint.h>
+
+#include <avr/io.h>
+
 #include "timer.h"
 
 #ifndef __AVR_ATmega328P__

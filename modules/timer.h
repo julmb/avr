@@ -5,6 +5,9 @@
 	#error "The timer module is not available on the chosen MCU."
 #endif
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <avr/io.h>
 
 uint8_t timer_has_elapsed()

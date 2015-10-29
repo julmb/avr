@@ -1,6 +1,9 @@
 #ifndef gpio_h
 #define gpio_h
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <avr/io.h>
 
 #include "eeprom.h"
