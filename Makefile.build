@@ -14,7 +14,7 @@ endif
 CC = avr-gcc
 OC = avr-objcopy
 PR = avrdude
-CPPFLAGS += -I$(avr)/include -DF_CPU=$(frequency)
+CPPFLAGS += -I$(avr)/modules -DF_CPU=$(frequency)
 CFLAGS += -mmcu=$(mmcu) -std=gnu99 -O3 -flto -save-temps=obj
 OCFLAGS += -O ihex
 PRFLAGS += -c $(programmer) -p $(partno)
