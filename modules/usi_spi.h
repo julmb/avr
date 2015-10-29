@@ -31,7 +31,7 @@ void spi_initialize()
 	// set wire mode to 01
 	// set clock source to 10
 	USICR = (0 << USIWM1) | (1 << USIWM0) | (1 << USICS1) | (0 << USICS0);
-	
+
 	// reset counter
 	USISR &= ~_BV(USICNT3) & ~_BV(USICNT2) & ~_BV(USICNT1) & ~_BV(USICNT0);
 
