@@ -1,0 +1,12 @@
+ifeq ($(device), attiny85)
+    mmcu = attiny85
+    partno = t85
+endif
+ifeq ($(device), atmega328p)
+    mmcu = atmega328p
+    partno = m328p
+endif
+ifeq ($(device), atmega1284p)
+    mmcu = atmega1284p
+    partno = m1284p
+endif

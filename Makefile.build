@@ -1,22 +1,12 @@
-ifeq ($(device), attiny85)
-    mmcu = attiny85
-    partno = t85
-endif
-ifeq ($(device), atmega328p)
-    mmcu = atmega328p
-    partno = m328p
-endif
-ifeq ($(device), atmega1284p)
-    mmcu = atmega1284p
-    partno = m1284p
-endif
+include $(avr)/Makefile.devices
 
 CC = avr-gcc
 OC = avr-objcopy
 PR = avrdude
 CPPFLAGS += -I$(avr)/modules -DF_CPU=$(frequency)
 CFLAGS += -mmcu=$(mmcu) -std=gnu99 -O3 -flto -save-temps=obj
-OCFLAGS += -O ihex
+LDFLAGS += $(if $(offset), -Ttext=$(offset))
+OCFLAGS += -v
 PRFLAGS += -c $(programmer) -p $(partno)
 
 flash = -U flash:w:obj/$(main).hex
@@ -25,6 +15,9 @@ configure = $(if $(configuration), -U eeprom:w:$(configuration))
 default: binary
 
 .PHONY: default
+
+# TODO: clean up
+# TODO: sudo?
 
 build: obj/$(main).elf
 binary: obj/$(main).hex
@@ -45,7 +38,9 @@ obj/%.elf: %.c | obj
 	$(CC)     $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $*.c -o  obj/$*.elf
 	$(CC) -MM $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $*.c -MT obj/$*.elf > obj/$*.d
 obj/%.hex: obj/%.elf
-	$(OC) $(OCFLAGS) obj/$*.elf obj/$*.hex
+	$(OC) -O ihex $(OCFLAGS) obj/$*.elf obj/$*.hex
+obj/%.bin: obj/%.elf
+	$(OC) -O binary $(OCFLAGS) obj/$*.elf obj/$*.bin
 clean:
 	rm -r obj
 
