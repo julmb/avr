@@ -1,0 +1,60 @@
+install build-essential autoconf bison flex
+install gcc-avr avr-libc binutils-avr avrdude
+
+spidev (gumstix, raspberry pi)
+	programmer: -c linuxspi -P /dev/spidev1.0
+	compile avrdude with spidev support
+		resources: https://github.com/kcuzner/avrdude
+		configuration
+			programmer
+			  id = "linuxspi";
+			  desc = "Use Linux SPI device in /dev/spidev*";
+			  type = "linuxspi";
+			  reset = 10;
+			  baudrate = 100000;
+			;
+
+AVR dragon programmer
+	programmer: -c dragon_isp
+	cables
+		MISO: purple
+		SCK: gray
+		RESET: white
+		VTG: red
+		MOSI: brown
+		GND: black
+
+avrdude device names
+	attiny85: -p t85
+	atmega328p: -p m328p
+
+arr-gcc device names
+	attiny85: -mmcu=attiny85
+	atmega328p: -mmcu=atmega328p
+
+avrdude test: avrdude <programmer> <device>
+
+avrdude interactive mode
+	command: avrdude <programmer> <device> -t
+	display part information
+		>>> part
+	display fuses
+		>>> d lfuse
+		>>> d hfuse
+		>>> d efuse
+	write fuses
+		>>> w lfuse 0 0xff
+		>>> w hfuse 0 0xff
+		>>> w efuse 0 0xff
+
+fuses
+	attiny85, 16 MHz PLL: -U lfuse:w:0xf1:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
+	attiny85, 16 MHz PLL, clock output: -U lfuse:w:0xb1:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
+	atmega328p, external clock: -U lfuse:w:0xe0:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m
+	atmega328p, crystal resonator: -U lfuse:w:0xf7:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m
+	atmega1284p, crystal resonator: -U lfuse:w:0xf7:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m
+
+compile and flash
+	avr-gcc <device> main.c -o main.elf
+	avr-objcopy -O ihex main.elf main.hex
+	avrdude <programmer> <device> -U flash:w:main.hex
