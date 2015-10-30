@@ -1,4 +1,4 @@
-include $(avr)/Makefile.devices
+include $(avr)/build/Makefile.devices
 
 CC = avr-gcc
 OC = avr-objcopy

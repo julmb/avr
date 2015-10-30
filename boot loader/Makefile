@@ -11,4 +11,4 @@ lfuse = 0xF7:m
 hfuse = 0xD9:m
 efuse = 0x07:m
 
-include $(avr)/Makefile.build
+include $(avr)/build/Makefile
