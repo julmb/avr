@@ -1,0 +1,17 @@
+peripherals
+	RESET
+		already has an internal 50kOhm pull-up resistor
+		optional: external 10kOhm pull-up resistor for noisy environments
+		optional: ESD protection diode to clamp in case of VRESET > VCC
+	VCC
+		connect to 5V
+		decouple using 100nF ceramic capacitor
+	AVCC
+		connect to 5V
+		if using the ADC, decouple using 100nF ceramic capacitor
+	AREF
+		if using the ADC, connect to reference voltage
+		if using the ADC, decouple using 100nF ceramic capacitor
+	XTAL
+		place oscillator as close to MCU as possible
+		surround oscillator with ground plane
