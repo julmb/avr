@@ -1,24 +1,19 @@
 #include <basic.h>
 #include <usart.h>
-#include <display.h>
 
 #include <avr/pgmspace.h>
 #include <avr/boot.h>
 
 // TODO: remove display
 // TODO: remove unused includes
+// TODO: move flash/eeprom access stuff to extra module(s)
 // TODO: enable reading/writing all the pieces of memory that avrdude supports as well
+// #include <display.h>
+// display display = display_initialize(pin_initialize(port_initialize(port_c), 5), pin_initialize(port_initialize(port_c), 4), pin_initialize(port_initialize(port_c), 3), port_initialize(port_d));
 // display_printf(display, "BL: 0x%04X", reset_type);
 
-FUSES =
-{
-.low = LFUSE_DEFAULT,
-.high = HFUSE_DEFAULT,
-.extended = EFUSE_DEFAULT
-};
-
-typedef enum { read = 0x01, write = 0x02 } command;
-typedef enum { flash = 0x01, eeprom = 0x02 } memory;
+typedef enum { info = 0x0001, read = 0x0002, write = 0x0003 } command;
+typedef enum { flash = 0x0001, eeprom = 0x0002 } memory;
 
 uint8_t read_byte(void* position)
 {
@@ -42,9 +37,6 @@ void write_page(void* position, void* data)
 
 void loader()
 {
-	display display = display_initialize(pin_initialize(port_initialize(port_c), 5), pin_initialize(port_initialize(port_c), 4), pin_initialize(port_initialize(port_c), 3), port_initialize(port_d));
-	display_printf(display, "loader %u", sizeof(memory));
-
 	// enable USART with a divider of 64 * 16, giving about 1 kBd/MHz
 	usart_initialize(1, 1, 0x003F, 0);
 
@@ -53,15 +45,20 @@ void loader()
 		command command;
 		if (usart_read(&command, sizeof(command))) continue;
 
-		memory memory;
-		if (usart_read(&memory, sizeof(memory))) continue;
-
-		void* position;
-		if (usart_read(&position, sizeof(position))) continue;
-
 		switch (command)
 		{
+			case info:
+			{
+				size_t page_size = SPM_PAGESIZE;
+				usart_write(&page_size, sizeof(page_size));
+				break;
+			}
 			case read:
+			{
+				memory memory;
+				if (usart_read(&memory, sizeof(memory))) break;
+				void* position;
+				if (usart_read(&position, sizeof(position))) break;
 				switch (memory)
 				{
 					case flash:
@@ -72,12 +69,28 @@ void loader()
 					}
 				}
 				break;
+			}
 			case write:
+			{
+				memory memory;
+				if (usart_read(&memory, sizeof(memory))) break;
+				void* position;
+				if (usart_read(&position, sizeof(position))) break;
 				switch (memory)
 				{
-					case flash: break;
+					case flash:
+					{
+						uint8_t data[SPM_PAGESIZE];
+						usart_read(&data, sizeof(data));
+						write_page(position, &data);
+
+						uint8_t ack = 0x12;
+						usart_write(&ack, sizeof(ack));
+						break;
+					}
 				}
 				break;
+			}
 		}
 	}
 
@@ -90,7 +103,5 @@ void main()
 
 	if (reset_type == external) loader();
 
-	display display = display_initialize(pin_initialize(port_initialize(port_c), 5), pin_initialize(port_initialize(port_c), 4), pin_initialize(port_initialize(port_c), 3), port_initialize(port_d));
-	display_printf(display, "APP");
 	application();
 }
