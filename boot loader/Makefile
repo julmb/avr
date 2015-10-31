@@ -1,14 +1,16 @@
 avr = ..
+
 programmer = dragon_isp
 device = atmega328p
-frequency = 20000000UL
+frequency = 20000000
+
 main = main
 
-offset = 0x1800
+offset = 0x7000
 
-lock = 0x3F:m
+lock = 0x2F:m
 lfuse = 0xF7:m
-hfuse = 0xD9:m
-efuse = 0x07:m
+hfuse = 0xD8:m
+efuse = 0x04:m
 
 include $(avr)/build/Makefile
