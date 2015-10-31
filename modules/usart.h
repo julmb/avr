@@ -12,16 +12,17 @@
 	#error "The USART module is not available on the chosen MCU."
 #endif
 
-uint8_t usart_rx_has_byte() { return UCSR0A & _BV(RXC0); }
-uint8_t usart_rx_get_byte() { return UDR0; }
+uint8_t usart_received_byte() { return UCSR0A & _BV(RXC0); }
+uint8_t usart_sent_byte() { return UCSR0A & _BV(TXC0); }
+uint8_t usart_needs_byte() { return UCSR0A & _BV(UDRE0); }
 
 void usart_wait()
 {
-	while (!usart_rx_has_byte());
+	while (!usart_received_byte());
 }
 uint8_t usart_try(uint16_t tick_count)
 {
-	if (usart_rx_has_byte()) return 0;
+	if (usart_received_byte()) return 0;
 
 	timer_restart();
 
@@ -30,12 +31,13 @@ uint8_t usart_try(uint16_t tick_count)
 		timer_reset();
 
 		while (!timer_has_elapsed())
-			if (usart_rx_has_byte())
+			if (usart_received_byte())
 				return 0;
 	}
 
 	return 1;
 }
+
 uint8_t usart_read(void* data, size_t length)
 {
 	uint8_t* bytes = data;
@@ -44,10 +46,23 @@ uint8_t usart_read(void* data, size_t length)
 	{
 		if (usart_try(1)) return 1;
 
-		*bytes++ = usart_rx_get_byte();
+		*bytes++ = UDR0;
 	}
 
 	return 0;
+}
+void usart_write(void* data, size_t length)
+{
+	uint8_t* bytes = data;
+
+	for (size_t index = 0; index < length; index++)
+	{
+		while (!usart_needs_byte());
+
+		UDR0 = *bytes++;
+	}
+
+	while (!usart_sent_byte());
 }
 
 void usart_initialize(uint8_t receiver, uint8_t transmitter, uint16_t divider, uint8_t double_speed)
@@ -64,21 +79,23 @@ void usart_initialize(uint8_t receiver, uint8_t transmitter, uint16_t divider, u
 	UCSR0A = ((double_speed ? 1 : 0) << U2X0) | (0 << MPCM0);
 	UCSR0B = (0 << RXCIE0) | (0 << TXCIE0) | (0 << UDRIE0) | ((receiver ? 1 : 0) << RXEN0) | ((transmitter ? 1 : 0) << TXEN0) | (0 << UCSZ02);
 	UCSR0C = (0 << UMSEL01) | (0 << UMSEL00) | (0 << UPM01) | (0 << UPM00) | (0 << USBS0) | (1 << UCSZ01) | (1 << UCSZ00) | (0 << UCPOL0);
+
+	// set baud rate
 	UBRR0 = divider;
 
 	timer_initialize();
 }
 void usart_dispose()
 {
-	// reset baud rate
-	UBRR0 = 0x0000;
-
-	// reset USART configuration and status
+	// reset configuration and status
 	UCSR0A = 0x00;
 	UCSR0B = 0x00;
 	UCSR0C = 0x00;
 
-	// reset USART data
+	// reset baud rate
+	UBRR0 = 0x0000;
+
+	// reset data
 	UDR0 = 0x00;
 
 	timer_dispose();
