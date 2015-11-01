@@ -6,18 +6,21 @@
 
 #include <avr/wdt.h>
 
-#define FLASH_BASE ((size_t)0)
-#define FLASH_SIZE (((size_t)FLASHEND + 1) - FLASH_BASE)
-#define FLASH_PAGE_SIZE ((size_t)SPM_PAGESIZE)
-#define FLASH_PAGE_COUNT (FLASH_SIZE / FLASH_PAGE_SIZE)
+#define FLASH_BASE ((void*)0)
+#define FLASH_END ((void*)FLASHEND + 1)
+#define FLASH_LENGTH (FLASH_END - FLASH_BASE)
+#define FLASH_PAGE_LENGTH ((size_t)SPM_PAGESIZE)
+#define FLASH_PAGE_COUNT (FLASH_LENGTH / FLASH_PAGE_LENGTH)
 
-#define EEPROM_BASE ((size_t)0)
-#define EEPROM_SIZE (((size_t)E2END + 1) - EEPROM_BASE)
-#define EEPROM_PAGE_SIZE ((size_t)E2PAGESIZE)
-#define EEPROM_PAGE_COUNT (EEPROM_SIZE / EEPROM_PAGE_SIZE)
+#define EEPROM_BASE ((void*)0)
+#define EEPROM_END ((void*)E2END + 1)
+#define EEPROM_LENGTH (EEPROM_END - EEPROM_BASE)
+#define EEPROM_PAGE_LENGTH ((size_t)E2PAGESIZE)
+#define EEPROM_PAGE_COUNT (EEPROM_LENGTH / EEPROM_PAGE_LENGTH)
 
-#define SRAM_BASE ((size_t)RAMSTART)
-#define SRAM_SIZE (((size_t)RAMEND + 1) - SRAM_BASE)
+#define SRAM_BASE ((void*)RAMSTART)
+#define SRAM_END ((void*)RAMEND + 1)
+#define SRAM_LENGTH (SRAM_END - SRAM_BASE)
 
 typedef enum { unknown, power, external, software, brown_out } reset_type;
 
