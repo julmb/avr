@@ -6,7 +6,7 @@
 
 #include <avr/io.h>
 
-#include "eeprom.h"
+#include "memory.h"
 
 #define port_a &DDRA, &PINA, &PORTA
 #define port_b &DDRB, &PINB, &PORTB
