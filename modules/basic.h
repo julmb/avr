@@ -31,7 +31,7 @@ void reset()
 	while (1);
 }
 
-void start()
+void application()
 {
 	asm("jmp 0");
 }
