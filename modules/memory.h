@@ -23,6 +23,8 @@
 #define SRAM_END ((void*)RAMEND + 1)
 #define SRAM_LENGTH (SRAM_END - SRAM_BASE)
 
+#define PROGRAM_LENGTH 0x7000
+
 #define SIGNATURE_LENGTH 0x10
 
 #define FUSE_LENGTH 0x10
