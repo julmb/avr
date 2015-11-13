@@ -63,7 +63,7 @@ void eeprom_read_page(uint8_t page_index, void* data)
 }
 void eeprom_write_page(uint8_t page_index, void* data)
 {
-	eeprom_update_block(EEPROM_BASE + page_index * EEPROM_PAGE_LENGTH, data, EEPROM_PAGE_LENGTH);
+	eeprom_update_block(data, EEPROM_BASE + page_index * EEPROM_PAGE_LENGTH, EEPROM_PAGE_LENGTH);
 }
 
 void signature_read(void* data)
