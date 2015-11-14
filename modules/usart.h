@@ -12,14 +12,25 @@
 	#error "The USART module is not available on the chosen MCU."
 #endif
 
+// full receive buffer sets this flag
+// reset or reading UDR0 clear this flag
 uint8_t usart_received_byte() { return UCSR0A & _BV(RXC0); }
+// reset clears this flag
+// empty transmit buffer and empty transmit shift register set this flag
 uint8_t usart_sent_byte() { return UCSR0A & _BV(TXC0); }
+// full transmit buffer clears this flag
+// reset or empty transmit buffer set this flag
 uint8_t usart_needs_byte() { return UCSR0A & _BV(UDRE0); }
 
-void usart_wait()
+void usart_wait_receive()
 {
 	while (!usart_received_byte());
 }
+void usart_wait_send()
+{
+	while (!usart_sent_byte());
+}
+
 uint8_t usart_try(uint16_t tick_count)
 {
 	if (usart_received_byte()) return 0;
@@ -59,10 +70,10 @@ void usart_write(void* data, size_t length)
 	{
 		while (!usart_needs_byte());
 
+		// clear the TXC0 flag since this does not happen automatically
+		UCSR0A |= _BV(TXC0);
 		UDR0 = *bytes++;
 	}
-
-	while (!usart_sent_byte());
 }
 
 void usart_initialize(uint8_t receiver, uint8_t transmitter, uint16_t divider, uint8_t double_speed)
