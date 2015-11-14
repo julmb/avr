@@ -15,11 +15,11 @@
 
 typedef struct { volatile uint8_t* control; volatile uint8_t* input; volatile uint8_t* output; } port;
 
-port port_initialize(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output)
+inline port port_initialize(volatile uint8_t* control, volatile uint8_t* input, volatile uint8_t* output)
 {
 	return (port) { control, input, output };
 }
-void port_dispose(port port)
+inline void port_dispose(port port)
 {
 	*port.control = 0x00;
 	*port.output = 0x00;
@@ -46,37 +46,37 @@ port port_decode(void** offset)
 	}
 }
 
-void port_set_direction(port port, uint8_t value) { *port.control = value; }
-void port_set_input(port port) { port_set_direction(port, 0x00); }
-void port_set_output(port port) { port_set_direction(port, 0xFF); }
+inline void port_set_direction(port port, uint8_t value) { *port.control = value; }
+inline void port_set_input(port port) { port_set_direction(port, 0x00); }
+inline void port_set_output(port port) { port_set_direction(port, 0xFF); }
 
-uint8_t port_read(port port) { return *port.input; }
-void port_write(port port, uint8_t value) { *port.output = value; }
+inline uint8_t port_read(port port) { return *port.input; }
+inline void port_write(port port, uint8_t value) { *port.output = value; }
 
 typedef struct { port port; uint8_t index; } pin;
 
-pin pin_initialize(port port, uint8_t index)
+inline pin pin_initialize(port port, uint8_t index)
 {
 	return (pin) { port, index };
 }
-void pin_dispose(pin pin)
+inline void pin_dispose(pin pin)
 {
 	*pin.port.control &= ~_BV(pin.index);
 	*pin.port.output &= ~_BV(pin.index);
 }
 
-void pin_set_input(pin pin) { *pin.port.control &= ~_BV(pin.index); }
-void pin_set_output(pin pin) { *pin.port.control |= _BV(pin.index); }
+inline void pin_set_input(pin pin) { *pin.port.control &= ~_BV(pin.index); }
+inline void pin_set_output(pin pin) { *pin.port.control |= _BV(pin.index); }
 
-uint8_t pin_low(pin pin) { return *pin.port.output & ~_BV(pin.index); }
-uint8_t pin_high(pin pin) { return *pin.port.output | _BV(pin.index); }
-void pin_clear(pin pin) { *pin.port.output = pin_low(pin); }
-void pin_set(pin pin) { *pin.port.output = pin_high(pin); }
-void pin_toggle(pin pin) { *pin.port.input = _BV(pin.index); }
-uint8_t pin_read(pin pin) { return *pin.port.input & _BV(pin.index); }
-void pin_write(pin pin, uint8_t value) { *pin.port.output = value ? pin_high(pin) : pin_low(pin); }
+inline uint8_t pin_low(pin pin) { return *pin.port.output & ~_BV(pin.index); }
+inline uint8_t pin_high(pin pin) { return *pin.port.output | _BV(pin.index); }
+inline void pin_clear(pin pin) { *pin.port.output = pin_low(pin); }
+inline void pin_set(pin pin) { *pin.port.output = pin_high(pin); }
+inline void pin_toggle(pin pin) { *pin.port.input = _BV(pin.index); }
+inline uint8_t pin_read(pin pin) { return *pin.port.input & _BV(pin.index); }
+inline void pin_write(pin pin, uint8_t value) { *pin.port.output = value ? pin_high(pin) : pin_low(pin); }
 
-pin pin_input(port port, uint8_t index, uint8_t pull_up)
+inline pin pin_input(port port, uint8_t index, uint8_t pull_up)
 {
 	pin pin = pin_initialize(port, index);
 
@@ -85,7 +85,7 @@ pin pin_input(port port, uint8_t index, uint8_t pull_up)
 
 	return pin;
 }
-pin pin_output(port port, uint8_t index, uint8_t state)
+inline pin pin_output(port port, uint8_t index, uint8_t state)
 {
 	pin pin = pin_initialize(port, index);
 
