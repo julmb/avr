@@ -72,7 +72,7 @@ uint8_t pin_low(pin pin) { return *pin.port.output & ~_BV(pin.index); }
 uint8_t pin_high(pin pin) { return *pin.port.output | _BV(pin.index); }
 void pin_clear(pin pin) { *pin.port.output = pin_low(pin); }
 void pin_set(pin pin) { *pin.port.output = pin_high(pin); }
-void pin_toggle(pin pin) { *pin.port.input |= _BV(pin.index); }
+void pin_toggle(pin pin) { *pin.port.input = _BV(pin.index); }
 uint8_t pin_read(pin pin) { return *pin.port.input & _BV(pin.index); }
 void pin_write(pin pin, uint8_t value) { *pin.port.output = value ? pin_high(pin) : pin_low(pin); }
 
