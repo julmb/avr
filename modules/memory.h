@@ -19,15 +19,13 @@
 #define EEPROM_PAGE_LENGTH ((size_t)E2PAGESIZE)
 #define EEPROM_PAGE_COUNT (EEPROM_LENGTH / EEPROM_PAGE_LENGTH)
 
+#define SIGCAL_LENGTH 0x10
+
+#define FUSELOCK_LENGTH 0x10
+
 #define SRAM_BASE ((void*)RAMSTART)
 #define SRAM_END ((void*)RAMEND + 1)
 #define SRAM_LENGTH (SRAM_END - SRAM_BASE)
-
-#define APPLICATION_LENGTH 0x7000
-
-#define SIGNATURE_LENGTH 0x10
-
-#define FUSE_LENGTH 0x10
 
 // TODO: definition missing in avr-libc for the atmega328p
 #define SIGRD 5
@@ -66,17 +64,17 @@ void eeprom_write_page(uint8_t page_index, void* data)
 	eeprom_update_block(data, EEPROM_BASE + page_index * EEPROM_PAGE_LENGTH, EEPROM_PAGE_LENGTH);
 }
 
-void signature_read(void* data)
+void sigcal_read(void* data)
 {
 	uint8_t* bytes = data;
-	for (uint8_t byte_index = 0; byte_index < SIGNATURE_LENGTH; byte_index++)
+	for (uint8_t byte_index = 0; byte_index < SIGCAL_LENGTH; byte_index++)
 		*bytes++ = boot_signature_byte_get(byte_index);
 }
 
-void fuse_read(void* data)
+void fuselock_read(void* data)
 {
 	uint8_t* bytes = data;
-	for (uint8_t byte_index = 0; byte_index < FUSE_LENGTH; byte_index++)
+	for (uint8_t byte_index = 0; byte_index < FUSELOCK_LENGTH; byte_index++)
 		*bytes++ = boot_lock_fuse_bits_get(byte_index);
 }
 
