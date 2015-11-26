@@ -19,9 +19,17 @@
 #define EEPROM_PAGE_LENGTH ((size_t)E2PAGESIZE)
 #define EEPROM_PAGE_COUNT (EEPROM_LENGTH / EEPROM_PAGE_LENGTH)
 
-#define SIGCAL_LENGTH 0x10
+#define SIGCAL_BASE ((void*)0)
+#define SIGCAL_END ((void*)0x10)
+#define SIGCAL_LENGTH (SIGCAL_END - SIGCAL_BASE)
+#define SIGCAL_PAGE_LENGTH ((size_t)1)
+#define SIGCAL_PAGE_COUNT (SIGCAL_LENGTH / SIGCAL_PAGE_LENGTH)
 
-#define FUSELOCK_LENGTH 0x10
+#define FUSELOCK_BASE ((void*)0)
+#define FUSELOCK_END ((void*)0x10)
+#define FUSELOCK_LENGTH (FUSELOCK_END - FUSELOCK_BASE)
+#define FUSELOCK_PAGE_LENGTH ((size_t)1)
+#define FUSELOCK_PAGE_COUNT (FUSELOCK_LENGTH / FUSELOCK_PAGE_LENGTH)
 
 #define SRAM_BASE ((void*)RAMSTART)
 #define SRAM_END ((void*)RAMEND + 1)
@@ -64,18 +72,16 @@ void eeprom_write_page(uint8_t page_index, void* data)
 	eeprom_update_block(data, EEPROM_BASE + page_index * EEPROM_PAGE_LENGTH, EEPROM_PAGE_LENGTH);
 }
 
-void sigcal_read(void* data)
+void sigcal_read_page(uint8_t page_index, void* data)
 {
 	uint8_t* bytes = data;
-	for (uint8_t byte_index = 0; byte_index < SIGCAL_LENGTH; byte_index++)
-		*bytes++ = boot_signature_byte_get(byte_index);
+	*bytes = boot_signature_byte_get(page_index);
 }
 
-void fuselock_read(void* data)
+void fuselock_read_page(uint8_t page_index, void* data)
 {
 	uint8_t* bytes = data;
-	for (uint8_t byte_index = 0; byte_index < FUSELOCK_LENGTH; byte_index++)
-		*bytes++ = boot_lock_fuse_bits_get(byte_index);
+	*bytes = boot_lock_fuse_bits_get(page_index);
 }
 
 uint8_t decode_byte(void** offset)
