@@ -5,7 +5,11 @@ OC = avr-objcopy
 PR = avrdude
 CPPFLAGS += -I$(avr)/modules -DF_CPU=$(frequency)
 CFLAGS += -mmcu=$(mmcu) -std=gnu99 -O3 -flto -save-temps=obj
-LDFLAGS += $(if $(offset),-Ttext=$(offset))
+# TODO: why does --gc-sections need the -Wl option
+# TODO: maybe we want to invoke the compiler and linker separately for more control over the whole process?
+# TODO: maybe we want to use the traditional .h/.c split?
+# TODO: figure out if I need -fdata-sections -ffunction-sections
+LDFLAGS += $(if $(offset),-Ttext=$(offset)) -Wl,--gc-sections
 OCFLAGS += -v
 PRFLAGS += -c $(programmer) -p $(partno)
 
