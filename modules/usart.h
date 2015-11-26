@@ -14,19 +14,19 @@
 
 // full receive buffer sets this flag
 // reset or reading UDR0 clear this flag
-uint8_t usart_received_byte() { return UCSR0A & _BV(RXC0); }
+inline uint8_t usart_received_byte() { return UCSR0A & _BV(RXC0); }
 // reset clears this flag
 // empty transmit buffer and empty transmit shift register set this flag
-uint8_t usart_sent_byte() { return UCSR0A & _BV(TXC0); }
+inline uint8_t usart_sent_byte() { return UCSR0A & _BV(TXC0); }
 // full transmit buffer clears this flag
 // reset or empty transmit buffer set this flag
-uint8_t usart_needs_byte() { return UCSR0A & _BV(UDRE0); }
+inline uint8_t usart_needs_byte() { return UCSR0A & _BV(UDRE0); }
 
-void usart_wait_receive()
+inline void usart_wait_receive()
 {
 	while (!usart_received_byte());
 }
-void usart_wait_send()
+inline void usart_wait_send()
 {
 	while (!usart_sent_byte());
 }
