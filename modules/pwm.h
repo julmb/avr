@@ -10,7 +10,7 @@
 
 #include <avr/io.h>
 
-uint8_t pwm_get_frequency_bits(uint8_t frequency)
+inline uint8_t pwm_get_frequency_bits(uint8_t frequency)
 {
 	switch (frequency)
 	{
@@ -28,7 +28,7 @@ uint8_t pwm_get_frequency_bits(uint8_t frequency)
 
 	return 0b000;
 }
-void pwm_set_value(uint8_t index, uint8_t value)
+inline void pwm_set_value(uint8_t index, uint8_t value)
 {
 	switch (index)
 	{

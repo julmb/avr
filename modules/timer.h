@@ -10,22 +10,22 @@
 
 #include <avr/io.h>
 
-uint8_t timer_has_elapsed()
+inline uint8_t timer_has_elapsed()
 {
 	// check for the counter overflow flag
 	return TIFR0 & _BV(TOV0);
 }
-void timer_reset()
+inline void timer_reset()
 {
 	// clear the counter overflow flag
 	TIFR0 |= _BV(TOV0);
 }
-void timer_restart()
+inline void timer_restart()
 {
 	// reset the counter
 	TCNT0 = 0x00;
 }
-uint8_t timer_value()
+inline uint8_t timer_value()
 {
 	// get the counter value
 	return TCNT0;

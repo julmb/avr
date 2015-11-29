@@ -8,7 +8,7 @@
 
 typedef enum { unknown, power, external, software, brown_out } reset_type;
 
-reset_type initialize()
+inline reset_type initialize()
 {
 	uint8_t status = MCUSR;
 
@@ -24,14 +24,14 @@ reset_type initialize()
 	return unknown;
 }
 
-void reset()
+inline void reset()
 {
 	wdt_enable(WDTO_15MS);
 
 	while (1);
 }
 
-void application()
+inline void application()
 {
 	asm("jmp 0");
 }
