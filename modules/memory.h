@@ -84,29 +84,4 @@ void fuselock_read_page(uint8_t page_index, void* data)
 	*bytes = boot_lock_fuse_bits_get(page_index);
 }
 
-uint8_t decode_byte(void** offset)
-{
-	uint8_t value = eeprom_read_byte(*offset);
-
-	*offset += 1;
-
-	return value;
-}
-uint16_t decode_word(void** offset)
-{
-	uint16_t value = eeprom_read_word(*offset);
-
-	*offset += 2;
-
-	return value;
-}
-uint32_t decode_dword(void** offset)
-{
-	uint32_t value = eeprom_read_dword(*offset);
-
-	*offset += 4;
-
-	return value;
-}
-
 #endif
