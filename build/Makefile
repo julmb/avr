@@ -6,7 +6,6 @@ PR = avrdude
 CPPFLAGS += -I$(avr)/modules -DF_CPU=$(frequency)
 CFLAGS += -mmcu=$(mmcu) -std=gnu99 -O3 -flto -save-temps=obj
 LDFLAGS += -Wl,--gc-sections $(if $(offset),-Ttext=$(offset))
-OCFLAGS += -v
 PRFLAGS += -c $(programmer) -p $(partno)
 
 binary = obj/$(main).elf
