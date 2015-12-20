@@ -1,7 +1,6 @@
 include $(avr)/build/Makefile.devices
 
 CC = avr-gcc
-OC = avr-objcopy
 PR = avrdude
 CPPFLAGS += -I$(avr)/modules -DF_CPU=$(frequency)
 CFLAGS += -mmcu=$(mmcu) -std=gnu99 -O3 -flto -save-temps=obj
