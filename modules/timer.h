@@ -54,6 +54,12 @@ inline void timer_0_set(uint8_t value) { TCNT0 = value; }
 inline uint8_t timer_0_overflown() { return TIFR0 & _BV(TOV0); }
 inline void timer_0_reset() { TIFR0 |= _BV(TOV0); }
 
+inline void timer_0_restart(uint8_t value)
+{
+	timer_0_set(value);
+	timer_0_reset();
+}
+
 inline void timer_0_initialize(divider divider)
 {
 	// disable compare output (COM0A = 0b00, COM0B = 0b00)
@@ -62,8 +68,7 @@ inline void timer_0_initialize(divider divider)
 	TCCR0A = (0 << COM0A1) | (0 << COM0A0) | (0 << COM0B1) | (0 << COM0B0) | (0 << WGM01) | (0 << WGM00);
 	TCCR0B = (0 << WGM02) | timer_0_divider_bits(divider);
 
-	timer_0_set(0x00);
-	timer_0_reset();
+	timer_0_restart(0x00);
 }
 inline void timer_0_dispose()
 {
@@ -71,14 +76,19 @@ inline void timer_0_dispose()
 	TCCR0A = 0x00;
 	TCCR0B = 0x00;
 
-	timer_0_set(0x00);
-	timer_0_reset();
+	timer_0_restart(0x00);
 }
 
 inline uint16_t timer_1_get() { return TCNT1; }
 inline void timer_1_set(uint16_t value) { TCNT1 = value; }
 inline uint8_t timer_1_overflown() { return TIFR1 & _BV(TOV1); }
 inline void timer_1_reset() { TIFR1 |= _BV(TOV1); }
+
+inline void timer_1_restart(uint16_t value)
+{
+	timer_1_set(value);
+	timer_1_reset();
+}
 
 inline void timer_1_initialize(divider divider)
 {
@@ -88,8 +98,7 @@ inline void timer_1_initialize(divider divider)
 	TCCR1A = (0 << COM1A1) | (0 << COM1A0) | (0 << COM1B1) | (0 << COM1B0) | (0 << WGM11) | (0 << WGM10);
 	TCCR1B = (0 << WGM13) | (0 << WGM12) | timer_1_divider_bits(divider);
 
-	timer_1_set(0x0000);
-	timer_1_reset();
+	timer_1_restart(0x0000);
 }
 inline void timer_1_dispose()
 {
@@ -97,14 +106,19 @@ inline void timer_1_dispose()
 	TCCR1A = 0x00;
 	TCCR1B = 0x00;
 
-	timer_1_set(0x0000);
-	timer_1_reset();
+	timer_1_restart(0x0000);
 }
 
 inline uint8_t timer_2_get() { return TCNT2; }
 inline void timer_2_set(uint8_t value) { TCNT2 = value; }
 inline uint8_t timer_2_overflown() { return TIFR2 & _BV(TOV2); }
 inline void timer_2_reset() { TIFR2 |= _BV(TOV2); }
+
+inline void timer_2_restart(uint8_t value)
+{
+	timer_2_set(value);
+	timer_2_reset();
+}
 
 inline void timer_2_initialize(divider divider)
 {
@@ -114,8 +128,7 @@ inline void timer_2_initialize(divider divider)
 	TCCR2A = (0 << COM2A1) | (0 << COM2A0) | (0 << COM2B1) | (0 << COM2B0) | (0 << WGM21) | (0 << WGM20);
 	TCCR2B = (0 << WGM22) | timer_2_divider_bits(divider);
 
-	timer_2_set(0x00);
-	timer_2_reset();
+	timer_2_restart(0x00);
 }
 inline void timer_2_dispose()
 {
@@ -123,8 +136,7 @@ inline void timer_2_dispose()
 	TCCR2A = 0x00;
 	TCCR2B = 0x00;
 
-	timer_2_set(0x00);
-	timer_2_reset();
+	timer_2_restart(0x00);
 }
 
 #endif

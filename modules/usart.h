@@ -28,10 +28,7 @@ inline void usart_wait_received() { while (!usart_received()); }
 
 inline uint8_t usart_wait_received_timeout()
 {
-	if (usart_received()) return 0;
-
-	timer_0_set(0x00);
-	timer_0_reset();
+	timer_0_restart(0x00);
 
 	while (1)
 	{
