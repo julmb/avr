@@ -55,7 +55,12 @@ void flash_write_page(uint8_t page_index, void* data)
 
 	uint8_t* bytes = data;
 	for (uint8_t byte_index = 0; byte_index < FLASH_PAGE_LENGTH; byte_index += 2)
-		boot_page_fill(byte_index, *bytes++ << 0 | *bytes++ << 8);
+	{
+		uint8_t low = *bytes++;
+		uint8_t high = *bytes++;
+
+		boot_page_fill(byte_index, low << 0 | high << 8);
+	}
 
 	boot_page_write(page_position);
 	boot_spm_busy_wait();
