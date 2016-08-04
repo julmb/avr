@@ -1,5 +1,8 @@
-#ifndef eeprom_h
-#define eeprom_h
+#ifndef memory_h
+#define memory_h
+
+#include <stddef.h>
+#include <stdint.h>
 
 #include <avr/pgmspace.h>
 #include <avr/boot.h>

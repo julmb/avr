@@ -5,7 +5,6 @@
 	#error "The timer module is not available on the chosen MCU."
 #endif
 
-// TODO: are these still needed?
 #include <stddef.h>
 #include <stdint.h>
 

@@ -1,6 +1,9 @@
 #ifndef crc_h
 #define crc_h
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <util/crc16.h>
 
 uint16_t crc16_byte(uint8_t byte, uint16_t value)
