@@ -38,9 +38,6 @@
 #define SRAM_END ((void*)RAMEND + 1)
 #define SRAM_LENGTH (SRAM_END - SRAM_BASE)
 
-// TODO: definition missing in avr-libc for the atmega328p
-#define SIGRD 5
-
 void flash_read_page(uint8_t page_index, void* data)
 {
 	void* page_position = FLASH_BASE + page_index * FLASH_PAGE_LENGTH;
