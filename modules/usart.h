@@ -37,7 +37,6 @@ inline uint8_t usart_wait_received_timeout()
 	}
 }
 
-// TODO: this uses a mixture of high-level functions and low-level register access
 void usart_write(void* data, size_t length)
 {
 	uint8_t* bytes = data;
