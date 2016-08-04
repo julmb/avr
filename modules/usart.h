@@ -14,61 +14,52 @@
 
 // reset clears this flag
 // empty transmit buffer and empty transmit shift register set this flag
-inline uint8_t usart_sent_byte() { return UCSR0A & _BV(TXC0); }
+inline uint8_t usart_sent() { return UCSR0A & _BV(TXC0); }
 // full transmit buffer clears this flag
 // reset or empty transmit buffer set this flag
-inline uint8_t usart_needs_byte() { return UCSR0A & _BV(UDRE0); }
+inline uint8_t usart_needs() { return UCSR0A & _BV(UDRE0); }
 // full receive buffer sets this flag
 // reset or reading UDR0 clear this flag
-inline uint8_t usart_received_byte() { return UCSR0A & _BV(RXC0); }
+inline uint8_t usart_received() { return UCSR0A & _BV(RXC0); }
 
-inline void usart_wait_send()
+inline void usart_wait_sent() { while (!usart_sent()); }
+inline void usart_wait_needs() { while (!usart_needs()); }
+inline void usart_wait_received() { while (!usart_received()); }
+
+inline uint8_t usart_wait_received_timeout(counter counter)
 {
-	while (!usart_sent_byte());
-}
-inline void usart_wait_receive()
-{
-	while (!usart_received_byte());
-}
+	if (usart_received()) return 0;
 
-uint8_t usart_try(uint16_t tick_count)
-{
-	if (usart_received_byte()) return 0;
+	counter_set(counter, 0x0000);
+	counter_reset(counter);
 
-	timer_restart();
-
-	for (uint16_t index = 0; index < tick_count; index++)
+	while (1)
 	{
-		timer_reset();
-
-		while (!timer_has_elapsed())
-			if (usart_received_byte())
-				return 0;
+		if (usart_received()) return 0;
+		if (counter_overflown(counter)) return 1;
 	}
-
-	return 1;
 }
 
+// TODO: this uses a mixture of high-level functions and low-level register access
 void usart_write(void* data, size_t length)
 {
 	uint8_t* bytes = data;
 
 	for (size_t index = 0; index < length; index++)
 	{
-		while (!usart_needs_byte());
+		usart_wait_needs();
 
-		// clear the TXC0 flag since this does not happen automatically
 		UCSR0A |= _BV(TXC0);
 		UDR0 = *bytes++;
 	}
 }
-uint8_t usart_read(void* data, size_t length)
+uint8_t usart_read(void* data, size_t length, counter counter)
 {
 	uint8_t* bytes = data;
 
 	for (size_t index = 0; index < length; index++)
 	{
-		if (usart_try(1)) return 1;
+		if (usart_wait_received_timeout(counter)) return 1;
 
 		*bytes++ = UDR0;
 	}
@@ -93,8 +84,6 @@ void usart_initialize(uint8_t transmitter, uint8_t receiver, uint8_t sent_interr
 
 	// set baud rate
 	UBRR0 = divider;
-
-	timer_initialize();
 }
 void usart_dispose()
 {
@@ -108,8 +97,6 @@ void usart_dispose()
 
 	// reset data
 	UDR0 = 0x00;
-
-	timer_dispose();
 }
 
 #endif
