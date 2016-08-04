@@ -4,7 +4,7 @@ CC = avr-gcc
 OC = avr-objcopy
 PR = avrdude
 CPPFLAGS += -I$(avr)/modules -DF_CPU=$(frequency)
-CFLAGS += -mmcu=$(mmcu) -std=gnu99 -O3 -flto -save-temps=obj
+CFLAGS += -mmcu=$(mmcu) -std=gnu99 -Wall -O3 -flto -save-temps=obj
 LDFLAGS += -Wl,--gc-sections $(if $(offset),-Ttext=$(offset))
 PRFLAGS += -c $(programmer) -p $(partno)
 
